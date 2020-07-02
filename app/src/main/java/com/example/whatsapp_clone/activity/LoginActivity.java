@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.example.whatsapp_clone.R;
 import com.example.whatsapp_clone.helper.FirebaseConfig;
-import com.example.whatsapp_clone.model.User;
+import com.example.whatsapp_clone.model.user.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -31,7 +31,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        if(auth.getCurrentUser() != null) startMainActivity();
+        if (auth.getCurrentUser() != null) startMainActivity(); //check if user is already logged in
 
         loginInputEmail = findViewById(R.id.loginInputEmail);
         loginInputPassword = findViewById(R.id.loginInputPassword);
@@ -42,7 +42,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = loginInputEmail.getText().toString();
                 String password = loginInputPassword.getText().toString();
-                if(email.isEmpty() || password.isEmpty()) {
+                if (email.isEmpty() || password.isEmpty()) {
                     showLongToast("Preencha todos os campos");
                 } else {
                     login(new User(email, password));
@@ -62,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
         ).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()) {
+                if (task.isSuccessful()) {
                     showLongToast("Usuário logado");
                     startMainActivity();
                 } else {

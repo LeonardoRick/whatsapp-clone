@@ -5,4 +5,7 @@
     <string name="input_email">Digite seu e-mail</string>
     <string name="input_password">Digite sua senha</string>
     <string name="not_registered"><u>Não tem uma conta? Cadastre-se</u></string>
+
+    <string name="input_profile_name_explanation">Esse não é o seu nome de usuário nem sua senha. Esse nome ficará visível para seus contatos do WhatsApp clone</string>
+
 </resources>

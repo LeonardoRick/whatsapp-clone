@@ -1,7 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.MainActivity" />
+    android:orientation="vertical"
+    tools:context=".activity.MainActivity" >
+
+    <include layout="@layout/toolbar"/>
+
+    <com.ogaclejapan.smarttablayout.SmartTabLayout
+        android:id="@+id/viewPagerTab"
+        android:background="@color/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+
+        app:stl_indicatorColor="@android:color/white"
+        app:stl_indicatorThickness="4dp"
+        app:stl_indicatorWidth="auto"
+        app:stl_indicatorCornerRadius="2dp"
+        app:stl_overlineColor="#4D000000"
+        app:stl_overlineThickness="0dp"
+        app:stl_underlineColor="#4D000000"
+        app:stl_underlineThickness="1dp"
+        app:stl_dividerColor="@android:color/transparent"
+        app:stl_dividerThickness="1dp"
+        app:stl_defaultTabTextAllCaps="true"
+        app:stl_defaultTabTextColor="@android:color/white"
+        app:stl_defaultTabTextHorizontalPadding="16dp"
+
+        app:stl_distributeEvenly="true"
+        app:stl_clickable="true"
+        app:stl_titleOffset="24dp"
+        />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/viewPagerTab"
+        />
+</LinearLayout>

@@ -11,7 +11,8 @@ import android.widget.Toast;
 
 import com.example.whatsapp_clone.R;
 import com.example.whatsapp_clone.helper.FirebaseConfig;
-import com.example.whatsapp_clone.model.User;
+import com.example.whatsapp_clone.model.user.User;
+import com.example.whatsapp_clone.model.user.UserHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -43,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
                 String name = registerInputName.getText().toString();
                 String email = registerInputEmail.getText().toString();
                 String password = registerInputPassword.getText().toString();
-                if(name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                     showLongToast("Preencha todos os campos");
                 } else {
                     register(new User(name, email, password));
@@ -59,15 +60,19 @@ public class RegisterActivity extends AppCompatActivity {
         ).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()) {
+                if (task.isSuccessful()) {
                     // set user id and save it on database
                     user.setId(auth.getCurrentUser().getUid());
-                    user.saveOnDatabase();
 
-                    //starts mainActivity
-                    showLongToast("Usuário criado com sucesso");
-                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                    finish(); // so user can't go back to this activity
+                    try {
+                        UserHelper.saveOnDatabase(user);
+                        //starts mainActivity
+                        showLongToast("Usuário criado com sucesso");
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        finish(); // so user can't go back to this activity
+                    } catch (Exception e) {
+                        showLongToast("Erro ao cadastrar usuário: " + e.getMessage());
+                    }
                 } else {
                     try {
                         throw (task.getException());
