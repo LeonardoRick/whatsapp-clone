@@ -7,6 +7,7 @@ public class Constants {
         public static final String NAME = "name";
         public static final String EMAIL = "email";
         public static final String PICTURE = "picture";
+        public static final String ID = "id";
     }
 
     public static class FeatureRequest {

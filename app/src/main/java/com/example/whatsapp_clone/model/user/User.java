@@ -19,6 +19,13 @@ public class User {
         this.password = password;
     }
 
+    public User(String id, String name, String email, Uri picture ) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.picture = picture;
+    }
+
     public User(String name, String email, Uri picture ) {
         this.name = name;
         this.email = email;
@@ -30,7 +37,15 @@ public class User {
         this.password = password;
     }
 
-
+    /**
+     *
+     * @param id Firebase Database father key
+     * @return User object with id property set
+     */
+    public User withId(String id) {
+        this.id = id;
+        return this;
+    }
 
     @Exclude
     public String getId() { return id; }

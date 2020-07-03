@@ -1,6 +1,7 @@
 package com.example.whatsapp_clone.model.user;
 
 import android.net.Uri;
+import android.util.Log;
 
 import com.example.whatsapp_clone.helper.Constants;
 import com.example.whatsapp_clone.helper.FirebaseConfig;
@@ -79,6 +80,39 @@ public class UserHelper {
         userMap.put(Constants.UsersNode.EMAIL, user.getEmail());
         userMap.put(Constants.UsersNode.PICTURE, user.getPicture().toString());
         return userMap;
+    }
+
+    /**
+     * Since we have a Uri type on User, we can't receive Firabse info directly using
+     * dataSnapshot.getValue(User.class) because Firabase API can't convert an String
+     * to an Uri
+     *
+     * In this case, we  map each key by ourselves
+     *
+     * @param userMap received from database
+     * @return User object
+     */
+    public static User convertMapToUser(Map<String, Object> userMap) {
+        try {
+            Object idObject = userMap.get(Constants.UsersNode.ID);
+            Object nameObject = userMap.get(Constants.UsersNode.NAME);
+            Object emailObject = userMap.get(Constants.UsersNode.EMAIL);
+            Object uriObject = userMap.get(Constants.UsersNode.PICTURE);
+
+            String id = idObject.toString();
+            String name = nameObject.toString();
+            String email = emailObject.toString();
+
+            Uri uri = null;
+            if (uriObject != null ) {
+                uri = Uri.parse(uriObject.toString());
+            }
+
+            return new User(id, name, email, uri);
+        } catch (Exception e) {
+            Log.e("UserHelper", "convertMapToUser: " + e.getMessage() );
+            return null;
+        }
     }
 
     /**
