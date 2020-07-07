@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_chat"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewMessages"
+        android:layout_width="match_parent"
+        android:layout_margin="8dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginRight="8dp"
+            android:paddingRight="16dp"
+            android:paddingLeft="16dp"
+            android:background="@drawable/background_msg_field"
+            android:layout_marginBottom="3dp"
+            android:layout_marginTop="3dp"
+            android:elevation="2dp"
+            android:orientation="horizontal">
+            <EditText
+                android:id="@+id/messageToSend"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1" />
+            <ImageView
+                android:layout_marginRight="8dp"
+                android:id="@+id/imageViewAddPictureChat"
+                android:layout_width="28dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_photo_gray"
+                android:onClick="validatePermission"/>
+            <ImageView
+                android:id="@+id/imageViewTakePictureChat"
+                android:layout_width="28dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_camera_gray"
+                android:onClick="validatePermission"/>
+        </LinearLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabSendMessage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_send_white"
+            android:onClick="sendMessage"
+            app:fabCustomSize="40dp"
+            app:fabSize="mini"
+            android:backgroundTint="@color/colorPrimary"/>
+    </LinearLayout>
+
+</LinearLayout>

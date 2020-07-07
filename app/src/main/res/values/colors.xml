@@ -5,4 +5,7 @@
     <color name="colorAccent">#25D366</color>
 
     <color name="lightGray">#EEEEEE</color>
+
+    <color name="baloonSender">#C4F9C9</color>
+    <color name="baloonReceiver">#F4F4E9</color>
 </resources>

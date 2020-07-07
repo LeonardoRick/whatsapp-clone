@@ -7,8 +7,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.example.whatsapp_clone.R;
-import com.example.whatsapp_clone.fragment.ChatFragment;
-import com.example.whatsapp_clone.fragment.ContactFragment;
+import com.example.whatsapp_clone.fragment.ChatsListFragment;
+import com.example.whatsapp_clone.fragment.ContactsListFragment;
 import com.example.whatsapp_clone.helper.FirebaseConfig;
 import com.google.firebase.auth.FirebaseAuth;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
@@ -23,6 +23,9 @@ import androidx.viewpager.widget.ViewPager;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth auth = FirebaseConfig.getAuth();
+
+    private SmartTabLayout smartTabLayout;
+    private ViewPager viewPager;
 
     Toolbar toolbar;
     @Override
@@ -60,16 +63,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void configTabs() {
-        SmartTabLayout smartTabLayout = findViewById(R.id.viewPagerTab);
-        ViewPager viewPager = findViewById(R.id.viewPager);
+        smartTabLayout = findViewById(R.id.viewPagerTab);
+        viewPager = findViewById(R.id.viewPager);
 
         FragmentPagerItemAdapter pagerAdapter = new FragmentPagerItemAdapter(
                 getSupportFragmentManager(), // return a fragment manager
                 FragmentPagerItems.with(getApplicationContext())
-                    .add("Conversas", ChatFragment.class)
-                    .add("Contatos", ContactFragment.class)
+                    .add("Conversas", ChatsListFragment.class)
+                    .add("Contatos", ContactsListFragment.class)
                 .create()
         );
+
+        smartTabLayout.setOnTabClickListener(new SmartTabLayout.OnTabClickListener() {
+            @Override
+            public void onTabClicked(int position) {
+
+            }
+        });
 
         viewPager.setAdapter(pagerAdapter);
         smartTabLayout.setViewPager(viewPager);
@@ -82,4 +92,5 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
 }

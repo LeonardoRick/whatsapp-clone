@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.example.whatsapp_clone.R;
 import com.example.whatsapp_clone.helper.Constants;
 import com.example.whatsapp_clone.helper.FirebaseConfig;
+import com.example.whatsapp_clone.helper.GenericHelper;
 import com.example.whatsapp_clone.model.user.User;
 import com.example.whatsapp_clone.model.user.UserHelper;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -68,21 +69,19 @@ public class ConfigActivity extends AppCompatActivity {
      */
     public void recoverUserInfo() {
         loggedUser = UserHelper.getLogged();
-        if(loggedUser != null) {
+        if (loggedUser != null) {
             Picasso.get().load(loggedUser.getPicture())   // set user profile image
                     .placeholder(R.drawable.profile)
                     .error(R.drawable.profile)
                     .into(profileImage);
             userName.setText(loggedUser.getName()); // set user name
         }
-
     }
 
     /**
      * Method called when user clicks on pen button to update his name
      */
     public void updateUserName(View view) {
-
         String updatedName = userName.getText().toString();
         if(UserHelper.updateNameOnProfile(updatedName)) { //update userName on profile
             loggedUser.setName(updatedName);
@@ -109,30 +108,6 @@ public class ConfigActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Method called when user grant permission and we want to access a feature of Android SmartPhone
-     * @param requestCode
-     */
-    public void startIntentChangeProfilePicture(int requestCode) {
-        Intent intent = null;
-
-        switch (requestCode) {
-            case Constants.FeatureRequest.CAMERA:
-                intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                break;
-            case Constants.FeatureRequest.STORAGE:
-                intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        }
-
-        try {
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                startActivityForResult(intent, requestCode);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @TargetApi(Build.VERSION_CODES.M)
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -147,6 +122,29 @@ public class ConfigActivity extends AppCompatActivity {
             // if user denied more than one time (returns false to last method, so drops on this case)
         } else {
             showDefaultSettingsPermitionRequired();
+        }
+    }
+
+    /**
+     * Method called when user grant permission and we want to access a feature of Android SmartPhone
+     * @param requestCode
+     */
+    public void startIntentChangeProfilePicture(int requestCode) {
+        Intent intent = null;
+
+        switch (requestCode) {
+            case Constants.FeatureRequest.STORAGE:
+                intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            case Constants.FeatureRequest.CAMERA:
+                intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                break;
+        }
+        try {
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(intent, requestCode);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -177,7 +175,7 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     /**
-     * User selected denied permission second time
+     * User denied permission second time
      */
     public void showDefaultSettingsPermitionRequired() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -213,26 +211,26 @@ public class ConfigActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             Bitmap image = null;
-            try  {
+            try {
                 switch (requestCode) {
-                    case Constants.FeatureRequest.CAMERA:
-                        image = (Bitmap) data.getExtras().get("data");
-                        break;
                     case Constants.FeatureRequest.STORAGE:
                         Uri selectedImageUri = data.getData();
 
-                        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                             ImageDecoder.Source source = ImageDecoder.createSource(getContentResolver(), selectedImageUri);
                             image = ImageDecoder.decodeBitmap(source);
                         } else {
-                            image = getDeprecatedBitmap(selectedImageUri);
+                            image = GenericHelper.getDeprecatedBitmap(this, selectedImageUri);
                         }
+                        break;
+                    case Constants.FeatureRequest.CAMERA:
+                        image = (Bitmap) data.getExtras().get("data");
                         break;
                 }
 
-                if(image != null) {
+                if (image != null) {
                     profileImage.setImageBitmap(image);
                     // save image on firebase Storage
                     uploadImageToStorage(image);
@@ -244,29 +242,19 @@ public class ConfigActivity extends AppCompatActivity {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.P)
-    public Bitmap getDeprecatedBitmap(Uri uri) {
-        try {
-            return MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     /**
      * Method that upload selected image to Firebase Storage
      * @param image selected from user to be his profile picture
      */
     public void uploadImageToStorage(Bitmap image) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();       // object that allows convertion to byte array
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();         // object that allows convertion to byte array
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);    // compress img
         byte[] imgData = baos.toByteArray();                            // convert BAOS to pixels (literally byte array/matrix)
 
         StorageReference imageStorageRef = FirebaseConfig.getFirebaseStorage()
                 .child(Constants.Storage.IMAGES)
                 .child(Constants.Storage.PROFILE)
-                .child(FirebaseConfig.getAuth().getUid() + ".jpeg"); // save image with user id name
+                .child(FirebaseConfig.getAuth().getUid() + Constants.Storage.JPEG); // save image with user id name
 
         UploadTask uploadTask = imageStorageRef.putBytes(imgData);             // upload image and return task to control success
         uploadTask.addOnFailureListener(new OnFailureListener() {

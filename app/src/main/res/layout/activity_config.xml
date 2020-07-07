@@ -96,7 +96,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/circleImageViewProfile"
         app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/ic_camera_cinza" />
+        app:srcCompat="@drawable/ic_camera_gray" />
 
     <ImageButton
         android:id="@+id/buttonAddPicture"
@@ -110,6 +110,6 @@
         app:layout_constraintStart_toEndOf="@+id/buttonTakePicture"
         app:layout_constraintTop_toTopOf="@+id/circleImageViewProfile"
         app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/ic_photo_cinza" />
+        app:srcCompat="@drawable/ic_photo_gray" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
