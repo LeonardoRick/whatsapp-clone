@@ -101,9 +101,11 @@ public class UserHelper {
     public static Map<String, Object> convertUserToMap(User user) {
         Map<String, Object> userMap = new HashMap<>();
 
-        userMap.put(Constants.UsersNode.NAME, user.getName());
-        userMap.put(Constants.UsersNode.EMAIL, user.getEmail());
-        userMap.put(Constants.UsersNode.PICTURE, user.getPicture().toString());
+        if (user.getId() != null) userMap.put(Constants.ID, user.getId());
+        if (user.getName() != null) userMap.put(Constants.UsersNode.NAME, user.getName());
+        if (user.getEmail() != null) userMap.put(Constants.UsersNode.EMAIL, user.getEmail());
+        if (user.getPicture() != null) userMap.put(Constants.UsersNode.PICTURE, user.getPicture().toString());
+
         return userMap;
     }
 
@@ -126,18 +128,10 @@ public class UserHelper {
             Object emailObject = userMap.get(Constants.UsersNode.EMAIL);
             Object uriObject = userMap.get(Constants.UsersNode.PICTURE);
 
-            if (idObject != null)  {
-                String id = idObject.toString();
-                user.setId(id);
-            };
-            if (nameObject != null) {
-                String name = nameObject.toString();
-                user.setName(name);
-            };
-            if (emailObject != null) {
-                String email = emailObject.toString();
-                user.setEmail(email);
-            }
+            if (idObject != null) user.setId(idObject.toString());
+            if (nameObject != null) user.setName(nameObject.toString());
+            if (emailObject != null) user.setEmail(emailObject.toString());
+
             if (uriObject != null ) {
                 Uri uri = Uri.parse(uriObject.toString());
                 user.setPicture(uri);

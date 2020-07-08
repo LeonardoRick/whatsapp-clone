@@ -27,7 +27,7 @@ public class MessageHelper {
                     .push()                                              // generated id for this msg 'message_-MBMIPnJtG7PnE9bDS'
                     .setValue(message);                                 // value Object Message with its properties
 
-            // savin to receiver
+            // saving to receiver
             messagedRef
                     .child(receiver.getId())
                     .child(sender.getId())

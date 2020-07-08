@@ -31,6 +31,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -187,7 +188,11 @@ public class ChatActivity extends AppCompatActivity {
      */
     private void recoverSelectedContactInfo() {
         // Recover info from selected user
-        selectedContact = (User) getIntent().getExtras().getSerializable(Constants.IntentKey.SELECTED_CONTACT);
+        try {
+            selectedContact = (User) getIntent().getExtras().getSerializable(Constants.IntentKey.SELECTED_CONTACT);
+        } catch (Exception e) {
+            Log.e("TAG", "recoverSelectedContactInfo: " + e.getMessage());
+        }
 
         String stringPicture = selectedContact.getStringPicture();
 

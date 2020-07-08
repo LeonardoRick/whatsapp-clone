@@ -23,21 +23,39 @@ public class ChatItemHelper {
      * @return boolean to control success of operation
      */
     public static boolean saveChatOnDatabase(Message message, User sender, User receiver) {
+
         try {
             String chatId = UUID.randomUUID().toString();
+            String lastMessage;
+
+            if (message.isImage()) {
+                lastMessage = "Imagem";
+            } else {
+                lastMessage = message.getTextMessage();
+            }
+
             ChatItem chatItem = new ChatItem(
                     chatId,
-                    message.getTextMessage(),
+                    lastMessage,
                     receiver
             );
 
             Map<String, Object> chatMap = convertChatToMap(chatItem);
 
+            // saving to sender
             FirebaseConfig.getFirebaseDatabase()
                     .child(Constants.ChatsNode.KEY)
                     .child(sender.getId())
                     .child(receiver.getId())
                     .setValue(chatMap);
+
+            // saving to receiver
+            FirebaseConfig.getFirebaseDatabase()
+                    .child(Constants.ChatsNode.KEY)
+                    .child(receiver.getId())
+                    .child(sender.getId())
+                    .setValue(chatMap);
+
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,7 +64,6 @@ public class ChatItemHelper {
     }
 
     /**
-     *
      * @param chatItem to be converted to hashMap so Firebase .updateChildren accpets
      * @return Map <String, Object> where Object is user info
      */
@@ -62,7 +79,6 @@ public class ChatItemHelper {
 
         return chatMap;
     }
-
 
     /**
      * @param chatNode dataSnapshot that has userValues from Firebase Database to be to a HashMap

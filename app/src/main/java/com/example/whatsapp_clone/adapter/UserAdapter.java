@@ -17,6 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+/**
+ * This adapter is used for both Chatlist and ContactsList since they use the same visual structure
+ */
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ContactViewHolder> {
 
     private ArrayList<?> list;

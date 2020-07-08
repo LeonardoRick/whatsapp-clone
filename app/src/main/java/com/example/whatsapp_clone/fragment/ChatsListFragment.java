@@ -1,5 +1,6 @@
 package com.example.whatsapp_clone.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -7,12 +8,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import com.example.whatsapp_clone.R;
+import com.example.whatsapp_clone.activity.ChatActivity;
 import com.example.whatsapp_clone.adapter.UserAdapter;
 import com.example.whatsapp_clone.helper.Constants;
 import com.example.whatsapp_clone.helper.FirebaseConfig;
@@ -26,6 +29,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -49,7 +53,7 @@ public class ChatsListFragment extends Fragment {
         // Inflate the layout for this fragment
          View view = inflater.inflate(R.layout.users_list, container, false);
 
-
+        recyclerViewChats = view.findViewById(R.id.recyclerViewUsers);
          loggedUser = UserHelper.getLogged();
 
          setChatRecyclerView(view);
@@ -67,6 +71,41 @@ public class ChatsListFragment extends Fragment {
     public void onStop() {
         super.onStop();
         chatsRef.removeEventListener(eventListener);
+    }
+
+    /**
+     * Filter chatsItem list
+     * @param text passed from MaterialSearchView to search
+     *                userName or lastMessage
+     *
+     */
+    public void searchChats(String text) {
+        ArrayList<ChatItem> chatsFilteredList = new ArrayList<>();
+
+        for (ChatItem chatItem : chatsList) {
+
+            String name = chatItem.getSelectedContact().getName().toLowerCase();
+            String lastMsg = chatItem.getLastMessage().toLowerCase();
+
+            if (name.contains(text) || lastMsg.contains(text)) {
+                chatsFilteredList.add(chatItem);
+            }
+        }
+
+        updateAdapter(chatsFilteredList);
+    }
+
+
+    /**
+     * Called from activity to update list when user closes searchView
+     */
+    public void updateAdapterWithStartList() {
+        updateAdapter(chatsList);
+    }
+    public void updateAdapter(ArrayList<ChatItem> list) {
+        adapter = new UserAdapter(list);
+        recyclerViewChats.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     private void recoverChatsList() {
@@ -99,7 +138,6 @@ public class ChatsListFragment extends Fragment {
 
 
     private void setChatRecyclerView (View view) {
-        recyclerViewChats = view.findViewById(R.id.recyclerViewUsers);
         recyclerViewChats.setHasFixedSize(true);
 
         // Layout Manager
@@ -121,7 +159,14 @@ public class ChatsListFragment extends Fragment {
                         new RecyclerItemClickListener.OnItemClickListener() {
                             @Override
                             public void onItemClick(View view, int position) {
-//                                TODO
+
+                                ChatItem chatItem = chatsList.get(position);
+
+                                Intent intent = new Intent(getActivity(), ChatActivity.class);
+
+                                // Sending info from selected user to chat activity (Remember to implement Serializable on User class)
+                                intent.putExtra(Constants.IntentKey.SELECTED_CONTACT, chatsList.get(position).getSelectedContact());
+                                startActivity(intent);
                             }
 
                             @Override

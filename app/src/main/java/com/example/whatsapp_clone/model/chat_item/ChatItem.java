@@ -2,6 +2,7 @@ package com.example.whatsapp_clone.model.chat_item;
 
 import com.example.whatsapp_clone.model.user.User;
 
+import java.io.Serializable;
 
 public class ChatItem {
 

@@ -18,23 +18,21 @@ public class Message {
         return userId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
     public String getTextMessage() {
         return textMessage;
-    }
-
-    public void setTextMessage(String textMessage) {
-        this.textMessage = textMessage;
     }
 
     public boolean isImage() {
         return isImage;
     }
 
-    public void setImage(boolean image) {
-        isImage = image;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
+
+    public void setTextMessage(String textMessage) {
+        this.textMessage = textMessage;
+    }
+
+    public void setImage(boolean image) { isImage = image; }
 }

@@ -106,7 +106,7 @@ public class ContactsListFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         recyclerViewContacts.setLayoutManager(layoutManager);
 
-        // Specify adapter
+        // Update adapter
         adapter = new UserAdapter(contactList);
         recyclerViewContacts.setAdapter(adapter);
         setRecyclerViewClickListener();
@@ -122,7 +122,6 @@ public class ContactsListFragment extends Fragment {
                             public void onItemClick(View view, int position) {
 
                                 Intent intent = new Intent(view.getContext(), ChatActivity.class);
-
 
                                 // Sending info from selected user to chat activity (Remember to implement Serializable on User class)
                                 intent.putExtra(Constants.IntentKey.SELECTED_CONTACT, contactList.get(position));

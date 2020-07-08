@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/circleImageViewContact"
             android:layout_width="60dp"
