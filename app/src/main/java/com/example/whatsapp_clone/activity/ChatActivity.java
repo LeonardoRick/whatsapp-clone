@@ -196,7 +196,7 @@ public class ChatActivity extends AppCompatActivity {
 
         String stringPicture = selectedContact.getStringPicture();
 
-        if (stringPicture != null) {
+        if (stringPicture != null && !stringPicture.isEmpty()) {
             Uri picture = Uri.parse(selectedContact.getStringPicture()); // recovering Uri from string because Uri can't be serialized
             selectedContact.setPicture(picture);
             Picasso.get()

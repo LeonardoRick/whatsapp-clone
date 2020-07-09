@@ -1,12 +1,14 @@
 package com.example.whatsapp_clone.adapter;
 
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.whatsapp_clone.R;
+import com.example.whatsapp_clone.helper.Constants;
 import com.example.whatsapp_clone.model.chat_item.ChatItem;
 import com.example.whatsapp_clone.model.user.User;
 import com.squareup.picasso.Picasso;
@@ -18,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * This adapter is used for both Chatlist and ContactsList since they use the same visual structure
+ * This adapter is used for both ChatList and ContactsList since they use the same visual structure
  */
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ContactViewHolder> {
 
@@ -42,30 +44,41 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ContactViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ContactViewHolder holder, int position) {
-
         Uri imageUri = null;
-        if (getItemViewType(position) == CONTACT_TYPE) {
-            User user = (User) list.get(position);
-            holder.userListItemName.setText(user.getName());
-            holder.userDescLabel.setText(user.getEmail());
-            imageUri = user.getPicture();
+        boolean isgGroupButton = false;
+        try {
 
-        } else if (getItemViewType(position) == CHAT_TYPE)  { // its CHAT_TYPE
-            ChatItem chatItem = (ChatItem) list.get(position);
-            holder.userListItemName.setText(chatItem.getSelectedContact().getName());
-            holder.userDescLabel.setText(chatItem.getLastMessage());
-            imageUri = chatItem.getSelectedContact().getPicture();
-        } else {
+            if (getItemViewType(position) == CONTACT_TYPE) {
+                User user = (User) list.get(position);
+                holder.userListItemName.setText(user.getName());
+                holder.userDescLabel.setText(user.getEmail());
+                imageUri = user.getPicture();
 
-            // default view for non defined type
+                // check if its groupButton to set button image
+                if (user.getId().equals(Constants.GroupItem.ID))
+                    isgGroupButton = true;
+
+            } else if (getItemViewType(position) == CHAT_TYPE)  { // its CHAT_TYPE
+                ChatItem chatItem = (ChatItem) list.get(position);
+                holder.userListItemName.setText(chatItem.getSelectedContact().getName());
+                holder.userDescLabel.setText(chatItem.getLastMessage());
+                imageUri = chatItem.getSelectedContact().getPicture();
+            } else {
+
+                // default view for non defined type
+            }
+
+            if(imageUri != null) {
+                Picasso.get().load(imageUri).into(holder.userImage);
+            } else if (isgGroupButton) {
+                holder.userImage.setImageResource(R.drawable.group_icon);
+                holder.userDescLabel.setVisibility(View.GONE);
+            } else {
+                holder.userImage.setImageResource(R.drawable.profile);
+            }
+        } catch (Exception e ) {
+            Log.e("TAG", "onBindViewHolder: " + e.getMessage() );
         }
-
-
-
-        Picasso.get().load(imageUri) // Set contact image
-                .placeholder(R.drawable.profile)
-                .error(R.drawable.profile)
-                .into(holder.userImage);
     }
 
     @Override

@@ -135,6 +135,7 @@ public class ConfigActivity extends AppCompatActivity {
         switch (requestCode) {
             case Constants.FeatureRequest.STORAGE:
                 intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                break;
             case Constants.FeatureRequest.CAMERA:
                 intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 break;

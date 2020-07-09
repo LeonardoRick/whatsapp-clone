@@ -37,6 +37,12 @@ public class Constants {
 
     public static class IntentKey {
         public static final String SELECTED_CONTACT = "SELECTED_CONTACT";
+        public static final String CONTACTS_LIST = "CONTACTS_LIST";
+    }
+
+    public static class GroupItem {
+        public static final String NAME = "Novo grupo";
+        public static final String ID = "groupItem";
     }
 
 }

@@ -38,9 +38,9 @@ public class ChatsListFragment extends Fragment {
     private RecyclerView recyclerViewChats;
     private UserAdapter adapter;
     private ArrayList<ChatItem> chatsList = new ArrayList<>();
+    private ValueEventListener eventListener;
 
     private DatabaseReference chatsRef;
-    private ValueEventListener eventListener;
     private User loggedUser;
 
     public ChatsListFragment() {
@@ -64,7 +64,6 @@ public class ChatsListFragment extends Fragment {
     public void onStart() {
         super.onStart();
         recoverChatsList();
-
     }
 
     @Override
@@ -117,7 +116,6 @@ public class ChatsListFragment extends Fragment {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                         if (dataSnapshot.exists()) {
                             chatsList.clear();
                             Map<String, Object> chatMap;
@@ -144,7 +142,7 @@ public class ChatsListFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         recyclerViewChats.setLayoutManager(layoutManager);
 
-        // Specify Adapter
+        // Adapter
         adapter = new UserAdapter(chatsList);
         recyclerViewChats.setAdapter(adapter);
 

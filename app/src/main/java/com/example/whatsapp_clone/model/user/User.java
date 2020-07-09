@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 import androidx.annotation.Nullable;
 
-public class User implements Serializable {
+public class User implements Serializable, Comparable<User> {
 
     private String id;
     private String name;
@@ -30,10 +30,12 @@ public class User implements Serializable {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.picture = picture;
 
-        // Used because we can't serialize Uri
-        this.stringPicture = picture.toString();
+        if (picture != null) {
+            this.picture = picture;
+            // Used because we can't serialize Uri
+            this.stringPicture = picture.toString();
+        }
     }
 
     public User(String email, String password) {
@@ -82,4 +84,13 @@ public class User implements Serializable {
 
     public void setPassword(String password) { this.password = password; }
 
+    /**
+     * To set that index of sort is user name
+     * @param user
+     * @return
+     */
+    @Override
+    public int compareTo(User user) {
+        return name.compareTo(user.name);
+    }
 }

@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import android.widget.AdapterView;
 
 import com.example.whatsapp_clone.R;
 import com.example.whatsapp_clone.activity.ChatActivity;
+import com.example.whatsapp_clone.activity.GroupActivity;
 import com.example.whatsapp_clone.adapter.UserAdapter;
 import com.example.whatsapp_clone.helper.Constants;
 import com.example.whatsapp_clone.helper.FirebaseConfig;
@@ -36,10 +36,11 @@ public class ContactsListFragment extends Fragment {
     private RecyclerView recyclerViewContacts;
     private UserAdapter adapter;
     private ArrayList<User> contactList = new ArrayList<>();
+    private boolean recyclerViewClickFlag = false;
+    private ValueEventListener contactsEventListener;
 
     private DatabaseReference usersRef;
-    private ValueEventListener contactsEventListener;
-    private String loggedUserId;
+    private User loggedUser;
 
     public ContactsListFragment() {
         // Required empty public constructor
@@ -64,9 +65,11 @@ public class ContactsListFragment extends Fragment {
 
 
         usersRef = FirebaseConfig.getFirebaseDatabase().child(Constants.UsersNode.KEY);
-        loggedUserId = UserHelper.getLogged().getId();
+        loggedUser = UserHelper.getLogged();
 
+        setCreateGroupButton();
         setContactRecyclerView(view);
+
         return view;  // Inflate the layout for this fragment
     }
 
@@ -77,17 +80,15 @@ public class ContactsListFragment extends Fragment {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
-                            contactList.clear();
                             Map<String, Object> userMap;              // userMap to recover users info to list
                             for (DataSnapshot userNode : dataSnapshot.getChildren()) {
-
                                 userMap = UserHelper.mapUserFromFirebse(userNode);
                                 User user = UserHelper.convertMapToUser(userMap);
 
-                                if (!user.getId().equals(loggedUserId)) {           // remove user from his own list of contacts
+                                if (!user.getId().equals(loggedUser.getId()))// remove user from his own list of contacts
                                     contactList.add(user);
-                                }
                             }
+                            recyclerViewClickFlag = true;
                             adapter.notifyDataSetChanged();
                         }
                     }
@@ -97,7 +98,6 @@ public class ContactsListFragment extends Fragment {
                 });
     }
 
-
     private void setContactRecyclerView(View view) {
         recyclerViewContacts = view.findViewById(R.id.recyclerViewUsers);
         recyclerViewContacts.setHasFixedSize(true);
@@ -106,7 +106,7 @@ public class ContactsListFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         recyclerViewContacts.setLayoutManager(layoutManager);
 
-        // Update adapter
+        // Adapter
         adapter = new UserAdapter(contactList);
         recyclerViewContacts.setAdapter(adapter);
         setRecyclerViewClickListener();
@@ -121,11 +121,18 @@ public class ContactsListFragment extends Fragment {
                             @Override
                             public void onItemClick(View view, int position) {
 
-                                Intent intent = new Intent(view.getContext(), ChatActivity.class);
+                                // Check if click is allowed (after list of contacts is loaded)
+                                if (recyclerViewClickFlag) {
+                                    User selectedContact = contactList.get(position);
+                                    // check if its groupButton to start group intent
+                                    if (selectedContact.getId().equals(Constants.GroupItem.ID)) {
+                                        contactList.remove(selectedContact);
+                                        navigateToGroupActivity(view);
+                                    } else {
+                                        navigateToChatActivity(view, selectedContact);
+                                    }
+                                }
 
-                                // Sending info from selected user to chat activity (Remember to implement Serializable on User class)
-                                intent.putExtra(Constants.IntentKey.SELECTED_CONTACT, contactList.get(position));
-                                startActivity(intent);
                             }
 
                             @Override
@@ -136,5 +143,28 @@ public class ContactsListFragment extends Fragment {
                         }
                 )
         );
+    }
+
+    private void navigateToGroupActivity(View view) {
+        Intent intent = new Intent (view.getContext(), GroupActivity.class);
+        intent.putExtra(Constants.IntentKey.CONTACTS_LIST, contactList);
+        startActivity( intent);
+    }
+
+    private void navigateToChatActivity(View view, User selectedContact) {
+        Intent intent = new Intent(view.getContext(), ChatActivity.class);
+        // Sending info from selected user to chat activity (Remember to implement Serializable on User class)
+        intent.putExtra(Constants.IntentKey.SELECTED_CONTACT, selectedContact);
+        startActivity(intent);
+    }
+
+    /**
+     * Creating item that allows user to create groups
+     */
+    private void setCreateGroupButton() {
+        User groupItem = new User();
+        groupItem.setId(Constants.GroupItem.ID);
+        groupItem.setName(Constants.GroupItem.NAME);
+        contactList.add(groupItem);
     }
 }
