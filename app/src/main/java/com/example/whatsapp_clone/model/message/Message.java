@@ -2,20 +2,22 @@ package com.example.whatsapp_clone.model.message;
 
 public class Message {
 
-    private String userId;
+    private String senderId;
+    private String receiverId;
     private String textMessage;
     private boolean isImage;
 
     public Message() {}
 
-    public Message(String userId, String message, boolean isImage) {
-        this.userId = userId;
-        this.textMessage = message;
+    public Message(String textMessage, String userId, String receiverId, boolean isImage) {
+        this.textMessage = textMessage;
+        this.senderId = userId;
+        this.receiverId = receiverId;
         this.isImage = isImage;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getSenderId() {
+        return senderId;
     }
 
     public String getTextMessage() {
@@ -26,8 +28,10 @@ public class Message {
         return isImage;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public String getReceiverId() { return receiverId; }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
 
     public void setTextMessage(String textMessage) {
@@ -35,4 +39,6 @@ public class Message {
     }
 
     public void setImage(boolean image) { isImage = image; }
+
+    public void setReceiverId(String receiverId) { this.receiverId = receiverId; }
 }

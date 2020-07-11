@@ -15,6 +15,8 @@ import java.util.Map;
 
 public class UserHelper {
 
+    public static final String TAG = "UserHelper";
+
     /**
      * @return User logged
      */
@@ -50,7 +52,7 @@ public class UserHelper {
             updateNameOnProfile(user.getName());
             return true;
         } catch(Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "saveOnDatabase: " + e.getMessage());
             return false;
         }
     }

@@ -67,7 +67,7 @@ public class ContactsListFragment extends Fragment {
         usersRef = FirebaseConfig.getFirebaseDatabase().child(Constants.UsersNode.KEY);
         loggedUser = UserHelper.getLogged();
 
-        setCreateGroupButton();
+
         setContactRecyclerView(view);
 
         return view;  // Inflate the layout for this fragment
@@ -79,7 +79,9 @@ public class ContactsListFragment extends Fragment {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        contactList.clear();
                         if (dataSnapshot.exists()) {
+                            setCreateGroupButton(); // add first item of list as createGroupButton
                             Map<String, Object> userMap;              // userMap to recover users info to list
                             for (DataSnapshot userNode : dataSnapshot.getChildren()) {
                                 userMap = UserHelper.mapUserFromFirebse(userNode);
@@ -125,8 +127,8 @@ public class ContactsListFragment extends Fragment {
                                 if (recyclerViewClickFlag) {
                                     User selectedContact = contactList.get(position);
                                     // check if its groupButton to start group intent
-                                    if (selectedContact.getId().equals(Constants.GroupItem.ID)) {
-                                        contactList.remove(selectedContact);
+                                    if (selectedContact.getId().equals(Constants.GroupListItem.ID)) {
+                                        contactList.remove(selectedContact); // remove button from list
                                         navigateToGroupActivity(view);
                                     } else {
                                         navigateToChatActivity(view, selectedContact);
@@ -148,7 +150,7 @@ public class ContactsListFragment extends Fragment {
     private void navigateToGroupActivity(View view) {
         Intent intent = new Intent (view.getContext(), GroupActivity.class);
         intent.putExtra(Constants.IntentKey.CONTACTS_LIST, contactList);
-        startActivity( intent);
+        startActivity(intent);
     }
 
     private void navigateToChatActivity(View view, User selectedContact) {
@@ -163,8 +165,8 @@ public class ContactsListFragment extends Fragment {
      */
     private void setCreateGroupButton() {
         User groupItem = new User();
-        groupItem.setId(Constants.GroupItem.ID);
-        groupItem.setName(Constants.GroupItem.NAME);
+        groupItem.setId(Constants.GroupListItem.ID);
+        groupItem.setName(Constants.GroupListItem.NAME);
         contactList.add(groupItem);
     }
 }

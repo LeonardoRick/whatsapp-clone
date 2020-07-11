@@ -9,11 +9,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".activity.GroupActivity"
             android:label="@string/title_activity_group"
             android:parentActivityName=".activity.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".activity.GroupRegisterActivity"
+            android:parentActivityName=".activity.GroupActivity"/>
         <activity
             android:name=".activity.ChatActivity"
             android:label="@string/title_activity_chat"
@@ -36,8 +39,8 @@
     <uses-feature
         android:name="android.hardware.camera2"
         android:required="false" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 </manifest>

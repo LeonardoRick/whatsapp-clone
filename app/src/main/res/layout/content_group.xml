@@ -11,19 +11,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/lightGray"
-        android:scrollbars="horizontal">
-    </androidx.recyclerview.widget.RecyclerView>
-    <androidx.appcompat.widget.AppCompatImageView
+        android:scrollbars="horizontal"/>
+
+    <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:src="@color/lightGray"
-        android:layout_margin="16dp"
-        ></androidx.appcompat.widget.AppCompatImageView>
+        android:layout_margin="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewGroupContacts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars="vertical">
-    </androidx.recyclerview.widget.RecyclerView>
+        android:scrollbars="vertical"/>
 </LinearLayout>

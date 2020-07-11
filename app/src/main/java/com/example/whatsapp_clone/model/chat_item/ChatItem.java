@@ -1,20 +1,28 @@
 package com.example.whatsapp_clone.model.chat_item;
 
+import com.example.whatsapp_clone.model.group.Group;
 import com.example.whatsapp_clone.model.user.User;
-
-import java.io.Serializable;
 
 public class ChatItem {
 
     private String id;
     private String lastMessage;
-    private User selectedContact;
+    private User sender;
+    private User receiver;
 
-    public ChatItem() {}
+    private boolean isGroup;
+    private Group group;
 
-    public ChatItem(String id, String lastMessage, User selectedContact) {
+
+    public ChatItem() {
+        this.isGroup = false;
+    }
+
+    public ChatItem(String id, String lastMessage, User sender, User receiver) {
+        this.isGroup = false;
         this.id = id;
-        this.selectedContact = selectedContact;
+        this.sender = sender;
+        this.receiver = receiver;
         this.lastMessage = lastMessage;
     }
 
@@ -22,11 +30,23 @@ public class ChatItem {
 
     public String getLastMessage() { return lastMessage; }
 
-    public User getSelectedContact() { return selectedContact; }
+    public User getSender() { return sender; }
+
+    public User getReceiver() { return receiver; }
+
+    public boolean isGroup() { return isGroup; }
+
+    public Group getGroup() { return group; }
 
     public void setId(String id) { this.id = id; }
 
     public void setLastMessage(String lastMessage) { this.lastMessage = lastMessage; }
 
-    public void setSelectedContact(User selectedContact) { this.selectedContact = selectedContact; }
+    public void setSender(User sender) { this.sender = sender; }
+
+    public void setReceiver(User receiver) { this.receiver = receiver; }
+
+    public void setIsGroup(boolean group) { isGroup = group; }
+
+    public void setGroup(Group group) { this.group = group; }
 }

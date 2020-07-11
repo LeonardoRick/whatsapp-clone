@@ -22,9 +22,6 @@ public class GroupMemberAdapter extends RecyclerView.Adapter<GroupMemberAdapter.
     public GroupMemberAdapter(ArrayList<User> groupMemberList) {
 
         this.groupMemberList = groupMemberList;
-        for (User user : this.groupMemberList) {
-            Log.d("TAG", "setSelectedMembersRecyclerView: "+ user.getName());
-        }
     }
 
     @NonNull

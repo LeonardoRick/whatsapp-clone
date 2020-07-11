@@ -50,34 +50,38 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ContactViewHol
 
             if (getItemViewType(position) == CONTACT_TYPE) {
                 User user = (User) list.get(position);
-                holder.userListItemName.setText(user.getName());
-                holder.userDescLabel.setText(user.getEmail());
+                holder.itemName.setText(user.getName());
+                holder.descLabel.setText(user.getEmail());
                 imageUri = user.getPicture();
 
                 // check if its groupButton to set button image
-                if (user.getId().equals(Constants.GroupItem.ID))
+                if (user.getId().equals(Constants.GroupListItem.ID))
                     isgGroupButton = true;
 
             } else if (getItemViewType(position) == CHAT_TYPE)  { // its CHAT_TYPE
                 ChatItem chatItem = (ChatItem) list.get(position);
-                holder.userListItemName.setText(chatItem.getSelectedContact().getName());
-                holder.userDescLabel.setText(chatItem.getLastMessage());
-                imageUri = chatItem.getSelectedContact().getPicture();
-            } else {
+                if (chatItem.isGroup()) {
+                    holder.itemName.setText(chatItem.getGroup().getName());
+                    imageUri = chatItem.getGroup().getPicture();
+                } else {
+                    holder.itemName.setText(chatItem.getReceiver().getName());
+                    imageUri = chatItem.getReceiver().getPicture();
+                }
 
-                // default view for non defined type
+                holder.descLabel.setText(chatItem.getLastMessage());
+
             }
 
             if(imageUri != null) {
                 Picasso.get().load(imageUri).into(holder.userImage);
             } else if (isgGroupButton) {
                 holder.userImage.setImageResource(R.drawable.group_icon);
-                holder.userDescLabel.setVisibility(View.GONE);
+                holder.descLabel.setVisibility(View.GONE);
             } else {
                 holder.userImage.setImageResource(R.drawable.profile);
             }
         } catch (Exception e ) {
-            Log.e("TAG", "onBindViewHolder: " + e.getMessage() );
+            Log.e("UserAdapter", "onBindViewHolder: " + e.getMessage() );
         }
     }
 
@@ -99,13 +103,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ContactViewHol
     public class ContactViewHolder extends RecyclerView.ViewHolder {
 
         CircleImageView userImage;
-        TextView userListItemName, userDescLabel;
+        TextView itemName, descLabel;
 
         public ContactViewHolder(@NonNull View itemView) {
             super(itemView);
             userImage = itemView.findViewById(R.id.circleImageViewContact);
-            userListItemName = itemView.findViewById(R.id.contactListItemName);
-            userDescLabel = itemView.findViewById(R.id.contactListItemEmail);
+            itemName = itemView.findViewById(R.id.contactListItemName);
+            descLabel = itemView.findViewById(R.id.contactListItemEmail);
         }
     }
 }

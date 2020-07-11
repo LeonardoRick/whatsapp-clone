@@ -1,5 +1,9 @@
 package com.example.whatsapp_clone.helper;
 
+import android.net.Uri;
+import com.example.whatsapp_clone.model.user.User;
+import java.util.ArrayList;
+
 public class Constants {
 
     public static final String ID = "id";
@@ -18,7 +22,19 @@ public class Constants {
     public static class ChatsNode {
         public static final String KEY = "chats";
         public static final String LAST_MESSAGE = "lastMessage";
-        public static final String SELECTED_CONTACT = "selectedContact";
+        public static final String RECEIVER = "receiver";
+        public static final String SENDER = "sender";
+
+        public static final String IS_GROUP = "isGroup";
+        public static final String GROUP = "group";
+    }
+
+    public static class GroupNode {
+        public static final String KEY = "groups";
+        public static final String NAME = "name";
+        public static final String PICTURE = "picture";
+        public static final String MEMBERS = "members";
+        public static final String CREATOR = "creator";
     }
 
     public static class FeatureRequest {
@@ -27,11 +43,11 @@ public class Constants {
         public static final int SETTINGS = 300;
     }
 
-
     public static class Storage {
         public static final String IMAGES = "images";
         public static final String PROFILE = "profile";
         public static final String CHAT = "chat";
+        public static final String GROUPS = "groups";
         public static  final String JPEG = ".jpeg";
     }
 
@@ -40,7 +56,7 @@ public class Constants {
         public static final String CONTACTS_LIST = "CONTACTS_LIST";
     }
 
-    public static class GroupItem {
+    public static class GroupListItem {
         public static final String NAME = "Novo grupo";
         public static final String ID = "groupItem";
     }

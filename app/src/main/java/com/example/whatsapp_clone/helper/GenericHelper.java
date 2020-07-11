@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 
+import java.io.ByteArrayOutputStream;
+
 public class GenericHelper {
 
     @TargetApi(Build.VERSION_CODES.P)
@@ -17,5 +19,11 @@ public class GenericHelper {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static byte[] bitmapToByteArray(Bitmap image) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();         // object that allows convertion to byte array
+        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);    // compress img
+        return baos.toByteArray();                            // convert BAOS to pixels (literally byte array/matrix)
     }
 }

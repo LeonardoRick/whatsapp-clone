@@ -99,11 +99,15 @@ public class ConfigActivity extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.buttonAddPicture:
                 ActivityCompat.requestPermissions(
-                        this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.FeatureRequest.STORAGE);
+                        this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},
+                        Constants.FeatureRequest.STORAGE
+                );
                 break;
             case R.id.buttonTakePicture:
                 ActivityCompat.requestPermissions(
-                        this, new String[] {Manifest.permission.CAMERA}, Constants.FeatureRequest.CAMERA);
+                        this, new String[] {Manifest.permission.CAMERA},
+                        Constants.FeatureRequest.CAMERA
+                );
                 break;
         }
     }
@@ -116,12 +120,12 @@ public class ConfigActivity extends AppCompatActivity {
         // if user accepted
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             startIntentChangeProfilePicture(requestCode);
-            // if used denied first time
+            // if user denied first time
         } else if (shouldShowRequestPermissionRationale(permissions[0])) {
             alertUserPermissionNeeded(requestCode);
             // if user denied more than one time (returns false to last method, so drops on this case)
         } else {
-            showDefaultSettingsPermitionRequired();
+            showDefaultSettingsPermissionRequired();
         }
     }
 
@@ -167,7 +171,7 @@ public class ConfigActivity extends AppCompatActivity {
         }
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Permissão necessária");
+        dialog.setTitle("Permissão Necessária");
         dialog.setMessage(msg);
         dialog.setPositiveButton("Entendi", null);
 
@@ -178,7 +182,7 @@ public class ConfigActivity extends AppCompatActivity {
     /**
      * User denied permission second time
      */
-    public void showDefaultSettingsPermitionRequired() {
+    public void showDefaultSettingsPermissionRequired() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Mudar a permissão em configurações");
         dialog.setMessage("Clique em Configurações para manualmente permitir o aplicativo acessar o recurso")
@@ -207,7 +211,7 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     /**
-     * Method that returns from any ActivityForResult with some info selected by user
+     * Method that returns to activity from any ActivityForResult with some info selected by user
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -248,14 +252,12 @@ public class ConfigActivity extends AppCompatActivity {
      * @param image selected from user to be his profile picture
      */
     public void uploadImageToStorage(Bitmap image) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();         // object that allows convertion to byte array
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);    // compress img
-        byte[] imgData = baos.toByteArray();                            // convert BAOS to pixels (literally byte array/matrix)
+        byte[] imgData = GenericHelper.bitmapToByteArray(image);
 
         StorageReference imageStorageRef = FirebaseConfig.getFirebaseStorage()
                 .child(Constants.Storage.IMAGES)
                 .child(Constants.Storage.PROFILE)
-                .child(FirebaseConfig.getAuth().getUid() + Constants.Storage.JPEG); // save image with user id name
+                .child(loggedUser.getId() + Constants.Storage.JPEG); // save image with user id name
 
         UploadTask uploadTask = imageStorageRef.putBytes(imgData);             // upload image and return task to control success
         uploadTask.addOnFailureListener(new OnFailureListener() {

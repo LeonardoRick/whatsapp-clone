@@ -29,7 +29,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -40,7 +39,7 @@ public class ChatsListFragment extends Fragment {
     private ArrayList<ChatItem> chatsList = new ArrayList<>();
     private ValueEventListener eventListener;
 
-    private DatabaseReference chatsRef;
+    private DatabaseReference currentUserChatsRef;
     private User loggedUser;
 
     public ChatsListFragment() {
@@ -69,7 +68,7 @@ public class ChatsListFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        chatsRef.removeEventListener(eventListener);
+        currentUserChatsRef.removeEventListener(eventListener);
     }
 
     /**
@@ -83,7 +82,7 @@ public class ChatsListFragment extends Fragment {
 
         for (ChatItem chatItem : chatsList) {
 
-            String name = chatItem.getSelectedContact().getName().toLowerCase();
+            String name = chatItem.getReceiver().getName().toLowerCase();
             String lastMsg = chatItem.getLastMessage().toLowerCase();
 
             if (name.contains(text) || lastMsg.contains(text)) {
@@ -108,22 +107,25 @@ public class ChatsListFragment extends Fragment {
     }
 
     private void recoverChatsList() {
-        chatsRef = FirebaseConfig.getFirebaseDatabase()
+        currentUserChatsRef = FirebaseConfig.getFirebaseDatabase()
                 .child(Constants.ChatsNode.KEY)
                 .child(loggedUser.getId());
         eventListener =
-                chatsRef
+                currentUserChatsRef
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
                             chatsList.clear();
-                            Map<String, Object> chatMap;
                             for (DataSnapshot chatNode : dataSnapshot.getChildren()) {
-
-                                chatMap = ChatItemHelper.mapChatFromFirebase(chatNode);
-                                ChatItem chatItem = ChatItemHelper.convertMapToChat(chatMap);
-                                chatsList.add(chatItem);
+                                // if its a group chat, we access info one level bellow (bellow groups key, see firebase)
+                                if (chatNode.getKey().equals(Constants.GroupNode.KEY)) {
+                                    for (DataSnapshot groupNode : chatNode.getChildren()) {
+                                        addChatItemOnList(groupNode);
+                                    }
+                                } else {
+                                    addChatItemOnList(chatNode);
+                                }
                             }
                             adapter.notifyDataSetChanged();
                         }
@@ -132,6 +134,13 @@ public class ChatsListFragment extends Fragment {
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) { }
                 });
+    }
+
+    private void addChatItemOnList(DataSnapshot node) {
+        Map<String, Object> nodeMap = ChatItemHelper.mapChatFromFirebase(node);
+        ChatItem  chatItem = ChatItemHelper.convertMapToChat(nodeMap);
+        Log.d("TAG", "onBindViewHolder: " + chatItem.getGroup().getName());
+        chatsList.add(chatItem);
     }
 
 
@@ -157,13 +166,10 @@ public class ChatsListFragment extends Fragment {
                         new RecyclerItemClickListener.OnItemClickListener() {
                             @Override
                             public void onItemClick(View view, int position) {
-
-                                ChatItem chatItem = chatsList.get(position);
-
                                 Intent intent = new Intent(getActivity(), ChatActivity.class);
 
                                 // Sending info from selected user to chat activity (Remember to implement Serializable on User class)
-                                intent.putExtra(Constants.IntentKey.SELECTED_CONTACT, chatsList.get(position).getSelectedContact());
+                                intent.putExtra(Constants.IntentKey.SELECTED_CONTACT, chatsList.get(position).getReceiver());
                                 startActivity(intent);
                             }
 

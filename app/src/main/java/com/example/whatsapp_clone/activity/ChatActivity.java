@@ -15,6 +15,8 @@ import com.example.whatsapp_clone.adapter.MessageAdapter;
 import com.example.whatsapp_clone.helper.Constants;
 import com.example.whatsapp_clone.helper.FirebaseConfig;
 import com.example.whatsapp_clone.helper.GenericHelper;
+import com.example.whatsapp_clone.model.chat_item.ChatItem;
+import com.example.whatsapp_clone.model.chat_item.ChatItemHelper;
 import com.example.whatsapp_clone.model.message.Message;
 import com.example.whatsapp_clone.model.message.MessageHelper;
 import com.example.whatsapp_clone.model.user.User;
@@ -138,7 +140,24 @@ public class ChatActivity extends AppCompatActivity {
     public void sendMessage(View view) {
         String textMsg = messageToSend.getText().toString();
 
-        MessageHelper.saveMessageOnDatabase(textMsg, loggedUser, selectedContact, false); // saving sender msg
+
+        // Updating message datbase
+        Message message = new Message(
+                textMsg,
+                loggedUser.getId(),
+                selectedContact.getId(),
+                false
+        );
+        MessageHelper.saveMessageOnDatabase(message);
+
+        // Updating chat database to show it on list of chats (ChatsListFragment)
+        ChatItem chat = new ChatItem(
+                UUID.randomUUID().toString(),
+                textMsg,
+                loggedUser,
+                selectedContact
+        );
+        ChatItemHelper.saveOnDatabase(chat);
         messageToSend.setText("");
     }
 
@@ -148,20 +167,16 @@ public class ChatActivity extends AppCompatActivity {
      * @param image from gallery to send on chat
      */
     private void sendImage(Bitmap image) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();           //object that allows convertion
-        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);      // compress image
-        byte[] imgData = baos.toByteArray();                              // convert BAOS to pixels (literally byte array/matrix)
-
-
         String imageName = UUID.randomUUID().toString();
+        byte[] imgData = GenericHelper.bitmapToByteArray(image);
+
         StorageReference imageStorageRef = FirebaseConfig.getFirebaseStorage()
                 .child(Constants.Storage.IMAGES)
                 .child(Constants.Storage.CHAT)
                 .child(loggedUser.getId())
                 .child(imageName + Constants.Storage.JPEG);               // Save image with user id name
 
-
-        UploadTask uploadTask  = imageStorageRef.putBytes(imgData);
+        UploadTask uploadTask = imageStorageRef.putBytes(imgData);
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
@@ -175,13 +190,28 @@ public class ChatActivity extends AppCompatActivity {
                 taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        MessageHelper.saveMessageOnDatabase(uri.toString(), loggedUser, selectedContact, true);
+                        // Updating message database
+                        Message message  = new Message(
+                                uri.toString(),
+                                loggedUser.getId(),
+                                selectedContact.getId(),
+                                true
+                        );
+                        MessageHelper.saveMessageOnDatabase(message);
+
+                        // Updating chat database to show it on list of chats (ChatsListFragment)
+                        ChatItem chat = new ChatItem(
+                                UUID.randomUUID().toString(),
+                                "imagem",
+                                loggedUser,
+                                selectedContact
+                        );
+                        ChatItemHelper.saveOnDatabase(chat);
                     }
                 });
             }
         });
     }
-
 
     /**
      * Recover info from selected user on ContactsListFragment list to fill toolbar info
@@ -234,11 +264,15 @@ public class ChatActivity extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.imageViewAddPictureChat:
                 ActivityCompat.requestPermissions(
-                        this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.FeatureRequest.STORAGE);
+                        this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},
+                        Constants.FeatureRequest.STORAGE
+                );
                 break;
             case R.id.imageViewTakePictureChat:
                 ActivityCompat.requestPermissions(
-                        this, new String[] {Manifest.permission.CAMERA}, Constants.FeatureRequest.CAMERA);
+                        this, new String[] {Manifest.permission.CAMERA},
+                        Constants.FeatureRequest.CAMERA
+                );
                 break;
         }
     }
@@ -254,9 +288,9 @@ public class ChatActivity extends AppCompatActivity {
             // if user denied first time
         } else if (shouldShowRequestPermissionRationale(permissions[0])) {
             alerUserPermissionNeeded(requestCode);
-        } else {
             // if user denied more than one time (returns false to last method, so drops on this case
-            showDefaultSettingsPermitionRequired();
+        } else {
+            showDefaultSettingsPermissionRequired();
         }
     }
 
@@ -269,7 +303,6 @@ public class ChatActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case Constants.FeatureRequest.STORAGE:
-
                 intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 break;
             case Constants.FeatureRequest.CAMERA:
@@ -303,7 +336,7 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Permissão necessária");
+        dialog.setTitle("Permissão Necessária");
         dialog.setMessage(msg);
         dialog.setPositiveButton("Entendi", null);
         dialog.create();
@@ -313,11 +346,11 @@ public class ChatActivity extends AppCompatActivity {
     /**
      * User denied permission second time
      */
-    public void showDefaultSettingsPermitionRequired() {
+    public void showDefaultSettingsPermissionRequired() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Mudar a permissão em configurações");
         dialog.setMessage("Clique em Configurações para manualmente permitir o aplicativo acessar o recurso");
-        dialog.setPositiveButton("", new DialogInterface.OnClickListener() {
+        dialog.setPositiveButton("Configurações", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 openPhoneSettings();
@@ -341,7 +374,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     /**
-     * Method that returns from activity any ActivityForResult call with some info selected
+     * Method that returns to activity from any ActivityForResult call with some info selected
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
