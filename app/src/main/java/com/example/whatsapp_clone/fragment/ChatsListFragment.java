@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,8 +80,7 @@ public class ChatsListFragment extends Fragment {
         ArrayList<ChatItem> chatsFilteredList = new ArrayList<>();
 
         for (ChatItem chatItem : chatsList) {
-
-            String name = chatItem.getReceiver().getName().toLowerCase();
+            String name = chatItem.getSelectedContact().getName().toLowerCase();
             String lastMsg = chatItem.getLastMessage().toLowerCase();
 
             if (name.contains(text) || lastMsg.contains(text)) {
@@ -139,7 +137,6 @@ public class ChatsListFragment extends Fragment {
     private void addChatItemOnList(DataSnapshot node) {
         Map<String, Object> nodeMap = ChatItemHelper.mapChatFromFirebase(node);
         ChatItem  chatItem = ChatItemHelper.convertMapToChat(nodeMap);
-        Log.d("TAG", "onBindViewHolder: " + chatItem.getGroup().getName());
         chatsList.add(chatItem);
     }
 
@@ -167,9 +164,14 @@ public class ChatsListFragment extends Fragment {
                             @Override
                             public void onItemClick(View view, int position) {
                                 Intent intent = new Intent(getActivity(), ChatActivity.class);
+                                ChatItem chat = chatsList.get(position);
 
-                                // Sending info from selected user to chat activity (Remember to implement Serializable on User class)
-                                intent.putExtra(Constants.IntentKey.SELECTED_CONTACT, chatsList.get(position).getReceiver());
+                                if (chat.isGroup()) {
+                                    intent.putExtra(Constants.IntentKey.SELECTED_GROUP, chat.getGroup());
+                                } else {
+                                    // Sending info from selected user to chat activity (Remember to implement Serializable on User class)
+                                    intent.putExtra(Constants.IntentKey.SELECTED_CONTACT, chat.getSelectedContact());
+                                }
                                 startActivity(intent);
                             }
 

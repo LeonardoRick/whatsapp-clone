@@ -17,6 +17,7 @@ import com.example.whatsapp_clone.helper.FirebaseConfig;
 import com.example.whatsapp_clone.helper.GenericHelper;
 import com.example.whatsapp_clone.model.chat_item.ChatItem;
 import com.example.whatsapp_clone.model.chat_item.ChatItemHelper;
+import com.example.whatsapp_clone.model.group.Group;
 import com.example.whatsapp_clone.model.message.Message;
 import com.example.whatsapp_clone.model.message.MessageHelper;
 import com.example.whatsapp_clone.model.user.User;
@@ -51,15 +52,14 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity {
 
-    private CircleImageView contactProfilePicture;
+    private CircleImageView profilePicture;
     private EditText messageToSend;
-    private TextView contactName;
+    private TextView nameLabel;
 
     private ArrayList<Message> messagesList = new ArrayList<>();
     private MessageAdapter adapter;
@@ -68,7 +68,11 @@ public class ChatActivity extends AppCompatActivity {
     private DatabaseReference messagesRef;
     private ChildEventListener messageEventListener;
     private User loggedUser;
+
     private User selectedContact; // contact user is talking with
+    private Group group; // group we are talking with
+
+    private boolean isGroupChat = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,15 +83,15 @@ public class ChatActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // show back button
 
-        contactName = findViewById(R.id.textViewNameChat);
-        contactProfilePicture = findViewById(R.id.circleImageViewChat);
+        nameLabel = findViewById(R.id.textViewNameChat);
+        profilePicture = findViewById(R.id.circleImageViewChat);
         messageToSend = findViewById(R.id.messageToSend);
 
         loggedUser = UserHelper.getLogged();
 
-        recoverSelectedContactInfo();
+        recoverSelectedInfo();
         setMessagesRecyclerView();
-        chatHistoryListener();
+
     }
 
     @Override
@@ -105,10 +109,17 @@ public class ChatActivity extends AppCompatActivity {
      * Recover all past messagens between selectedContact and logged user
      */
     private void chatHistoryListener() {
-        messagesRef = FirebaseConfig.getFirebaseDatabase()
-                .child(Constants.MessagesNode.KEY)
-                .child(loggedUser.getId())
-                .child(selectedContact.getId());
+        if (isGroupChat) {
+            messagesRef = FirebaseConfig.getFirebaseDatabase()
+                    .child(Constants.MessagesNode.KEY)
+                    .child(loggedUser.getId())
+                    .child(group.getId());
+        } else {
+            messagesRef = FirebaseConfig.getFirebaseDatabase()
+                    .child(Constants.MessagesNode.KEY)
+                    .child(loggedUser.getId())
+                    .child(selectedContact.getId());
+        }
 
         messageEventListener =
                 messagesRef
@@ -116,6 +127,7 @@ public class ChatActivity extends AppCompatActivity {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                         messagesList.add(dataSnapshot.getValue(Message.class));
+                        Message msgg = dataSnapshot.getValue(Message.class);
                         adapter.notifyDataSetChanged();
                     }
 
@@ -137,30 +149,52 @@ public class ChatActivity extends AppCompatActivity {
      * Send single message to database when clicking on send button
      * @param view
      */
-    public void sendMessage(View view) {
+    public void sendTextMessage(View view) {
         String textMsg = messageToSend.getText().toString();
-
-
-        // Updating message datbase
-        Message message = new Message(
-                textMsg,
-                loggedUser.getId(),
-                selectedContact.getId(),
-                false
-        );
-        MessageHelper.saveMessageOnDatabase(message);
-
-        // Updating chat database to show it on list of chats (ChatsListFragment)
-        ChatItem chat = new ChatItem(
-                UUID.randomUUID().toString(),
-                textMsg,
-                loggedUser,
-                selectedContact
-        );
-        ChatItemHelper.saveOnDatabase(chat);
         messageToSend.setText("");
+
+        if (!textMsg.isEmpty()) {
+            sendMessage(textMsg, false);       // update message database
+            updateChat(textMsg, false);       // Update chat database to show it on list of chats (ChatsListFragment)
+        }
     }
 
+    private void sendMessage(String msg, boolean isImage) {
+        Message message = new Message();
+        message.setTextMessage(msg);
+        message.setSenderId(loggedUser.getId());
+        message.setGroup(isGroupChat);
+        message.setImage(isImage);
+
+        if (isGroupChat) {
+            message.setReceiverId(group.getId());
+            for (User member : group.getMembers()) {
+                MessageHelper.saveGroupMessageOnDatabase(message, member.getId());
+            }
+        } else {
+            message.setReceiverId(selectedContact.getId());
+            MessageHelper.saveDirectMessageOnDatabase(message);
+        }
+    }
+
+    private void updateChat(String msg, boolean isImage) {
+        ChatItem chat = new ChatItem();
+        chat.setId(UUID.randomUUID().toString());
+        chat.setIsGroup(isGroupChat);
+
+        if (isImage) chat.setLastMessage("imagem");
+        else chat.setLastMessage(msg);
+
+        if (isGroupChat) {
+            chat.setGroup(group);
+            for (User member : group.getMembers()) {
+                ChatItemHelper.saveGroupChatItemOnDatabase(chat, member.getId());
+            }
+        } else  {
+            chat.setSelectedContact(selectedContact);
+            ChatItemHelper.saveDirectChatItemOnDatabase(chat);
+        }
+    }
 
     /**
      * Send single image to database when selecting gallery or taking picture
@@ -190,23 +224,8 @@ public class ChatActivity extends AppCompatActivity {
                 taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        // Updating message database
-                        Message message  = new Message(
-                                uri.toString(),
-                                loggedUser.getId(),
-                                selectedContact.getId(),
-                                true
-                        );
-                        MessageHelper.saveMessageOnDatabase(message);
-
-                        // Updating chat database to show it on list of chats (ChatsListFragment)
-                        ChatItem chat = new ChatItem(
-                                UUID.randomUUID().toString(),
-                                "imagem",
-                                loggedUser,
-                                selectedContact
-                        );
-                        ChatItemHelper.saveOnDatabase(chat);
+                       sendMessage(uri.toString(), true);      // Update message database
+                       updateChat(uri.toString(), true);       // Update chat database to show it on list of chats (ChatsListFragment)
                     }
                 });
             }
@@ -216,27 +235,54 @@ public class ChatActivity extends AppCompatActivity {
     /**
      * Recover info from selected user on ContactsListFragment list to fill toolbar info
      */
-    private void recoverSelectedContactInfo() {
-        // Recover info from selected user
-        try {
-            selectedContact = (User) getIntent().getExtras().getSerializable(Constants.IntentKey.SELECTED_CONTACT);
-        } catch (Exception e) {
-            Log.e("TAG", "recoverSelectedContactInfo: " + e.getMessage());
+    private void recoverSelectedInfo() {
+        Bundle bundle = getIntent().getExtras();
+        String name;
+        String stringPicture;
+        Uri picture = null;
+
+        if (bundle != null ){
+            try {
+                // Recover info from selected user
+                if (bundle.containsKey(Constants.IntentKey.SELECTED_CONTACT)) {
+                    selectedContact = (User) bundle.getSerializable(Constants.IntentKey.SELECTED_CONTACT);
+                    name = selectedContact.getName();
+                    stringPicture = selectedContact.getStringPicture(); // using string picture because we can't serialize Uri
+
+                    if (stringPicture != null && !stringPicture.isEmpty()) {
+                        picture = Uri.parse(stringPicture);
+                        selectedContact.setPicture(picture);
+                    }
+                // Recover info from selected user
+                } else if (bundle.containsKey(Constants.IntentKey.SELECTED_GROUP)) {
+                    isGroupChat = true;
+                    group = (Group) bundle.getSerializable(Constants.IntentKey.SELECTED_GROUP);
+                    name = group.getName();
+
+                    stringPicture = group.getStringPicture(); // using string picture because we can't serialize Uri
+                    if (stringPicture != null && !stringPicture.isEmpty()) {
+                        picture = Uri.parse(stringPicture);
+                        group.setPicture(picture);
+                    }
+
+                } else {
+                    showLongToast("Erro ao carregar as informações da conversa");
+                    return;
+                }
+
+                // Set contact name and image on toolbar
+                nameLabel.setText(name);
+                if (picture != null) {
+                    Picasso.get()
+                            .load(picture)
+                            .error(R.drawable.profile)
+                            .into(profilePicture);
+                }
+                chatHistoryListener();
+            } catch (Exception e) {
+                Log.e("ChatActivity", "recoverSelectedInfo: " + e.getMessage());
+            }
         }
-
-        String stringPicture = selectedContact.getStringPicture();
-
-        if (stringPicture != null && !stringPicture.isEmpty()) {
-            Uri picture = Uri.parse(selectedContact.getStringPicture()); // recovering Uri from string because Uri can't be serialized
-            selectedContact.setPicture(picture);
-            Picasso.get()
-                    .load(picture)
-                    .error(R.drawable.profile)
-                    .into(contactProfilePicture);
-        }
-
-        // Set contact name and image on toolbar
-        contactName.setText(selectedContact.getName());
     };
 
     /**

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.whatsapp_clone.R;
 import com.example.whatsapp_clone.fragment.ChatsListFragment;
@@ -88,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         smartTabLayout.setOnTabClickListener(new SmartTabLayout.OnTabClickListener() {
             @Override
             public void onTabClicked(int position) {
-
             }
         });
 

@@ -59,7 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/ic_send_white"
-            android:onClick="sendMessage"
+            android:onClick="sendTextMessage"
             app:fabCustomSize="40dp"
             app:fabSize="mini"
             android:backgroundTint="@color/colorPrimary"/>

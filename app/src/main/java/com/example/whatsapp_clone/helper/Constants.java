@@ -22,8 +22,7 @@ public class Constants {
     public static class ChatsNode {
         public static final String KEY = "chats";
         public static final String LAST_MESSAGE = "lastMessage";
-        public static final String RECEIVER = "receiver";
-        public static final String SENDER = "sender";
+        public static final String SELECTED_CONTACT = "selectedContact";
 
         public static final String IS_GROUP = "isGroup";
         public static final String GROUP = "group";
@@ -54,6 +53,7 @@ public class Constants {
     public static class IntentKey {
         public static final String SELECTED_CONTACT = "SELECTED_CONTACT";
         public static final String CONTACTS_LIST = "CONTACTS_LIST";
+        public static final String SELECTED_GROUP = "SELECTED_GROUP";
     }
 
     public static class GroupListItem {

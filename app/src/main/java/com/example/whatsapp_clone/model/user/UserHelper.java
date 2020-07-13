@@ -90,7 +90,6 @@ public class UserHelper {
         userMap.put(Constants.ID, userNode.getKey());                       // for each user, associate a key value
         for (DataSnapshot userSnapshot : userNode.getChildren()) {
             userMap.put(userSnapshot.getKey(), userSnapshot.getValue());
-
         }
         return userMap;
     }
@@ -128,14 +127,14 @@ public class UserHelper {
             Object idObject = userMap.get(Constants.ID);
             Object nameObject = userMap.get(Constants.UsersNode.NAME);
             Object emailObject = userMap.get(Constants.UsersNode.EMAIL);
-            Object uriObject = userMap.get(Constants.UsersNode.PICTURE);
+            Object pictureObject = userMap.get(Constants.UsersNode.PICTURE);
 
             if (idObject != null) user.setId(idObject.toString());
             if (nameObject != null) user.setName(nameObject.toString());
             if (emailObject != null) user.setEmail(emailObject.toString());
 
-            if (uriObject != null ) {
-                Uri uri = Uri.parse(uriObject.toString());
+            if (pictureObject != null ) {
+                Uri uri = Uri.parse(pictureObject.toString());
                 user.setPicture(uri);
             }
 

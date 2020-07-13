@@ -7,32 +7,39 @@ public class ChatItem {
 
     private String id;
     private String lastMessage;
-    private User sender;
-    private User receiver;
+
+    private User selectedContact;
 
     private boolean isGroup;
     private Group group;
 
 
-    public ChatItem() {
-        this.isGroup = false;
+    public ChatItem() { }
+
+    // Constructor used to copy chat
+    public ChatItem(ChatItem chat) {
+        this.id = chat.id;
+        this.lastMessage = chat.lastMessage;
+        this.selectedContact = chat.selectedContact;
+        this.isGroup = chat.isGroup;
+        this.group = chat.group;
     }
 
-    public ChatItem(String id, String lastMessage, User sender, User receiver) {
-        this.isGroup = false;
+    public ChatItem(String id, String lastMessage, User selectedContact) {
         this.id = id;
-        this.sender = sender;
-        this.receiver = receiver;
+
+        this.selectedContact = selectedContact;
         this.lastMessage = lastMessage;
+        this.isGroup = false;
     }
 
     public String getId() { return id; }
 
     public String getLastMessage() { return lastMessage; }
 
-    public User getSender() { return sender; }
 
-    public User getReceiver() { return receiver; }
+
+    public User getSelectedContact() { return selectedContact; }
 
     public boolean isGroup() { return isGroup; }
 
@@ -42,9 +49,9 @@ public class ChatItem {
 
     public void setLastMessage(String lastMessage) { this.lastMessage = lastMessage; }
 
-    public void setSender(User sender) { this.sender = sender; }
 
-    public void setReceiver(User receiver) { this.receiver = receiver; }
+
+    public void setSelectedContact(User selectedContact) { this.selectedContact = selectedContact; }
 
     public void setIsGroup(boolean group) { isGroup = group; }
 

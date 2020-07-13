@@ -1,6 +1,7 @@
 package com.example.whatsapp_clone.adapter;
 
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,11 +35,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         int layout;
 
         // Inflate the right view depending on message type (sender or reciver)
-        if (viewType == SENDER_VIEW_TYPE) {
-            layout = R.layout.message_sender;
-        } else {
-            layout = R.layout.message_receiver;
-        }
+        if (viewType == SENDER_VIEW_TYPE) layout = R.layout.message_sender;
+        else layout = R.layout.message_receiver;
 
         View listItem = LayoutInflater.from(parent.getContext())
                 .inflate(layout, parent, false);
@@ -78,9 +76,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public int getItemViewType(int position) {
         Message msg = messagesList.get(position);
-        if(FirebaseConfig.getAuth().getUid().equals(msg.getSenderId())) {
+        if(FirebaseConfig.getAuth().getUid().equals(msg.getSenderId()))
             return SENDER_VIEW_TYPE;
-        }
 
         return RECEIVER_VIEW_TYPE;
     }

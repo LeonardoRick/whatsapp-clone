@@ -37,6 +37,7 @@ import java.util.Map;
 
 public class GroupActivity extends AppCompatActivity {
 
+    public static GroupActivity reference; // used to finish this activity when creating group on GroupRegisterActivty
     private RecyclerView recyclerViewGroupMembers, recyclerViewGroupContacts;
     private UserAdapter contactAdapter;
     private ArrayList<User> contactsList = new ArrayList<>();
@@ -59,6 +60,7 @@ public class GroupActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Novo grupo");
         setSupportActionBar(toolbar);
+        reference = this;
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // back Button
 

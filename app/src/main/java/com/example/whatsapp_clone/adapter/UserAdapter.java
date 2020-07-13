@@ -64,8 +64,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ContactViewHol
                     holder.itemName.setText(chatItem.getGroup().getName());
                     imageUri = chatItem.getGroup().getPicture();
                 } else {
-                    holder.itemName.setText(chatItem.getReceiver().getName());
-                    imageUri = chatItem.getReceiver().getPicture();
+                    holder.itemName.setText(chatItem.getSelectedContact().getName());
+                    imageUri = chatItem.getSelectedContact().getPicture();
                 }
 
                 holder.descLabel.setText(chatItem.getLastMessage());

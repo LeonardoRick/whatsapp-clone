@@ -21,38 +21,63 @@ public class ChatItemHelper {
      * @param chat to be saved on database
      * @return boolean to control success of operation
      */
-    public static boolean saveOnDatabase(ChatItem chat) {
+    public static boolean saveDirectChatItemOnDatabase(ChatItem chat) {
+        String loggedUserId = UserHelper.getLogged().getId();
+        String receiverId = chat.getSelectedContact().getId();
+
+        // Creating chatItem to save on receiver database so he
+        // can se info from logged user, who is sending message to him
+        ChatItem chatToReceiver = new ChatItem(chat); // copy info from first chat
+        chatToReceiver.setSelectedContact(UserHelper.getLogged()); // set logged user as receiver of receiver user
 
         try {
             Map<String, Object> chatMap = convertChatToMap(chat);
+            Map<String, Object> chatMapToReceiver = convertChatToMap(chatToReceiver);
 
+            // saving to sender
+            FirebaseConfig.getFirebaseDatabase()
+                    .child(Constants.ChatsNode.KEY)
+                    .child(loggedUserId)
+                    .child(receiverId)
+                    .setValue(chatMap);
 
-            if (chat.isGroup()) {
-                FirebaseConfig.getFirebaseDatabase()
-                        .child(Constants.ChatsNode.KEY)
-                        .child(chat.getSender().getId())
-                        .child(Constants.GroupNode.KEY)
-                        .child(chat.getGroup().getId())
-                        .setValue(chatMap);
-            } else {
-                // saving to sender
-                FirebaseConfig.getFirebaseDatabase()
-                        .child(Constants.ChatsNode.KEY)
-                        .child(chat.getSender().getId())
-                        .child(chat.getReceiver().getId())
-                        .setValue(chatMap);
-
-                // saving to receiver
-                FirebaseConfig.getFirebaseDatabase()
-                        .child(Constants.ChatsNode.KEY)
-                        .child(chat.getReceiver().getId())
-                        .child(chat.getSender().getId())
-                        .setValue(chatMap);
-            }
+            // saving to receiver
+            FirebaseConfig.getFirebaseDatabase()
+                    .child(Constants.ChatsNode.KEY)
+                    .child(receiverId)
+                    .child(loggedUserId)
+                    .setValue(chatMapToReceiver);
 
             return true;
         } catch (Exception e) {
             Log.e(TAG, "saveOnDatabase: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Method to show groups on chatsListFragment. Be sure that logged user is setted
+     * as a member of group before calling this method
+     *
+     * (probably he is because when group is created he is add as a member)
+     *
+     * @param chat object to be saved on database
+     * @param memberId of each member o group
+     * @return boolean if method saved info on Firebase properly
+     */
+    public static boolean saveGroupChatItemOnDatabase(ChatItem chat, String memberId) {
+        try  {
+            Map<String, Object> chatMap = ChatItemHelper.convertChatToMap(chat);
+            FirebaseConfig.getFirebaseDatabase()
+                    .child(Constants.ChatsNode.KEY)
+                    .child(memberId)
+                    .child(Constants.GroupNode.KEY)
+                    .child(chat.getGroup().getId())
+                    .setValue(chatMap);
+
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "saveGroupChatItemOnDatabase: " + e.getMessage());
             return false;
         }
     }
@@ -68,13 +93,9 @@ public class ChatItemHelper {
         if (chatItem.getId() != null) chatMap.put(Constants.ID, chatItem.getId());
         if (chatItem.getLastMessage() != null) chatMap.put(Constants.ChatsNode.LAST_MESSAGE, chatItem.getLastMessage());
 
-        if (chatItem.getSender() != null) {
-            Map<String, Object> senderMap = UserHelper.convertUserToMap(chatItem.getSender());
-            chatMap.put(Constants.ChatsNode.SENDER, senderMap);
-        }
-        if (chatItem.getReceiver() != null) {
-            Map<String, Object> receiverMap = UserHelper.convertUserToMap(chatItem.getReceiver());
-            chatMap.put(Constants.ChatsNode.RECEIVER, receiverMap);
+        if (chatItem.getSelectedContact() != null) {
+            Map<String, Object> selectedContactMap = UserHelper.convertUserToMap(chatItem.getSelectedContact());
+            chatMap.put(Constants.ChatsNode.SELECTED_CONTACT, selectedContactMap);
         }
 
         // this property must never be null
@@ -107,17 +128,13 @@ public class ChatItemHelper {
         Map<String, Object> chatMap = new HashMap<>();
         chatMap.put(Constants.ID, node.getKey());
 
+        Log.d(TAG, "mapChatFromFirebase: " + chatMap.get("picture"));
         for (DataSnapshot chatProperty : node.getChildren()) {
-            switch (chatProperty.getKey()) {
-                case Constants.ChatsNode.RECEIVER:
-                    chatMap.put(Constants.ChatsNode.RECEIVER, UserHelper.mapUserFromFirebse(chatProperty));
-                    break;
-                case Constants.ChatsNode.SENDER:
-                    chatMap.put(Constants.ChatsNode.SENDER, UserHelper.mapUserFromFirebse(chatProperty));
-                    break;
-                default:
-                    chatMap.put(chatProperty.getKey(), chatProperty.getValue());
-            }
+
+            if (chatProperty.getKey().equals(Constants.ChatsNode.SELECTED_CONTACT))
+                chatMap.put(Constants.ChatsNode.SELECTED_CONTACT, UserHelper.mapUserFromFirebse(chatProperty));
+            else
+                chatMap.put(chatProperty.getKey(), chatProperty.getValue());
         }
         Log.d(TAG, "mapChatProperties: " + chatMap.get("isGroup"));
         return chatMap;
@@ -139,8 +156,7 @@ public class ChatItemHelper {
         try  {
             Object idObject = chatMap.get(Constants.ID);
             Object lastMessageObject = chatMap.get(Constants.ChatsNode.LAST_MESSAGE);
-            Object senderObject = chatMap.get(Constants.ChatsNode.SENDER);
-            Object receiverObject = chatMap.get(Constants.ChatsNode.RECEIVER);
+            Object selectedContactObject = chatMap.get(Constants.ChatsNode.SELECTED_CONTACT);
 
             Object isGroupObject = chatMap.get(Constants.ChatsNode.IS_GROUP);
             Object groupObject = chatMap.get(Constants.ChatsNode.GROUP);
@@ -149,16 +165,10 @@ public class ChatItemHelper {
 
             if (lastMessageObject != null) chat.setLastMessage(lastMessageObject.toString());
 
-            if (senderObject != null) {
-                Map<String, Object> senderMap = (Map<String, Object>) senderObject;
-                User sender = UserHelper.convertMapToUser(senderMap);
-                chat.setSender(sender);
-            }
-
-            if (receiverObject != null) {
-                Map<String, Object> receiverMap =  (Map<String, Object>) receiverObject;
-                User receiver = UserHelper.convertMapToUser(receiverMap);
-                chat.setReceiver(receiver);
+            if (selectedContactObject != null) {
+                Map<String, Object> selectedContactMap = (Map<String, Object>) selectedContactObject;
+                User selectedContact = UserHelper.convertMapToUser(selectedContactMap);
+                chat.setSelectedContact(selectedContact);
             }
 
             if (isGroupObject != null) chat.setIsGroup(((boolean) isGroupObject));
@@ -166,6 +176,7 @@ public class ChatItemHelper {
             if (groupObject != null) {
                 Map<String, Object> groupMap = (Map<String, Object>) groupObject;
                 Group group = GroupHelper.convertMapToGroup(groupMap);
+
                 chat.setGroup(group);
             }
 

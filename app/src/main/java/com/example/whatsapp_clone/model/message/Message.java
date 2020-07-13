@@ -5,30 +5,26 @@ public class Message {
     private String senderId;
     private String receiverId;
     private String textMessage;
-    private boolean isImage;
+    private boolean image;
+    private boolean group;
 
     public Message() {}
-
-    public Message(String textMessage, String userId, String receiverId, boolean isImage) {
-        this.textMessage = textMessage;
-        this.senderId = userId;
-        this.receiverId = receiverId;
-        this.isImage = isImage;
-    }
 
     public String getSenderId() {
         return senderId;
     }
+
+    public String getReceiverId() { return receiverId; }
 
     public String getTextMessage() {
         return textMessage;
     }
 
     public boolean isImage() {
-        return isImage;
+        return image;
     }
 
-    public String getReceiverId() { return receiverId; }
+    public boolean isGroup() { return group; }
 
     public void setSenderId(String senderId) {
         this.senderId = senderId;
@@ -38,7 +34,9 @@ public class Message {
         this.textMessage = textMessage;
     }
 
-    public void setImage(boolean image) { isImage = image; }
-
     public void setReceiverId(String receiverId) { this.receiverId = receiverId; }
+
+    public void setImage(boolean image) { this.image = image; }
+
+    public void setGroup(boolean group) { this.group = group; }
 }

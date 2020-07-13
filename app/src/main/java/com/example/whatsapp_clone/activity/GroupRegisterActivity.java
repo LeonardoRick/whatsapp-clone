@@ -57,6 +57,8 @@ public class GroupRegisterActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private Group group;
 
+    private boolean imageIsUploaded = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,18 +129,27 @@ public class GroupRegisterActivity extends AppCompatActivity {
      */
     public void saveGroup(View view) {
         // Set group name
-
-
         if (!groupNameisEmpty()) {
-            group.setName(editTextGroupName.getText().toString());
-            // Set group members with loggedUser
-            group.setMembers(groupMembersList);
-            group.addGroupMember(loggedUser);
+            if (imageIsUploaded) {
+                group.setName(editTextGroupName.getText().toString());
+                // Set group members with loggedUser
+                group.setMembers(groupMembersList);
+                group.addGroupMember(loggedUser);
 
-            // Save group on database
-            GroupHelper.saveOnDatabase(group);
+                // Save group on database
+                GroupHelper.saveOnDatabase(group);
+
+                Intent intent = new Intent(this, ChatActivity.class);
+                intent.putExtra(Constants.IntentKey.SELECTED_GROUP, group);
+                startActivity(intent);
+                GroupActivity.reference.finish();
+                finish();
+            } else {
+                showLongToast("Aguarde o upload da imagem");
+            }
+
         } else {
-            Toast.makeText(this, "O grupo precisa ter um nome definido", Toast.LENGTH_LONG).show();
+            showLongToast("O grupo precisa ter um nome definido");
         }
     }
 
@@ -243,6 +254,7 @@ public class GroupRegisterActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
+            imageIsUploaded = false;
             Bitmap image;
             try {
                 switch (requestCode) {
@@ -285,7 +297,7 @@ public class GroupRegisterActivity extends AppCompatActivity {
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(), "Erro ao fazer upload" + e.getMessage(), Toast.LENGTH_LONG).show();
+                showLongToast("Erro ao fazer upload" + e.getMessage());
             }
         });
 
@@ -296,10 +308,16 @@ public class GroupRegisterActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Uri uri) {
                         group.setPicture(uri);
+                        imageIsUploaded = true;
+                        showLongToast("Sucesso ao fazer upload da imagem");
                     }
                 });
 
             }
         });
+    }
+
+    private void showLongToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 }

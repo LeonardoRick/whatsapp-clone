@@ -6,10 +6,11 @@ import com.example.whatsapp_clone.helper.Constants;
 import com.example.whatsapp_clone.helper.FirebaseConfig;
 import com.example.whatsapp_clone.model.user.User;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import androidx.annotation.Nullable;
 
-public class Group {
+public class Group implements Serializable {
 
     private String id;
     private String name;
