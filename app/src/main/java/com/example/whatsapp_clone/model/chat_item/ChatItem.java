@@ -7,12 +7,9 @@ public class ChatItem {
 
     private String id;
     private String lastMessage;
-
     private User selectedContact;
-
     private boolean isGroup;
     private Group group;
-
 
     public ChatItem() { }
 
@@ -25,19 +22,9 @@ public class ChatItem {
         this.group = chat.group;
     }
 
-    public ChatItem(String id, String lastMessage, User selectedContact) {
-        this.id = id;
-
-        this.selectedContact = selectedContact;
-        this.lastMessage = lastMessage;
-        this.isGroup = false;
-    }
-
     public String getId() { return id; }
 
     public String getLastMessage() { return lastMessage; }
-
-
 
     public User getSelectedContact() { return selectedContact; }
 

@@ -34,6 +34,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ContactViewHol
         this.list = list;
     }
 
+    public ArrayList<?> getList() {
+        return list;
+    }
+
     @NonNull
     @Override
     public ContactViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

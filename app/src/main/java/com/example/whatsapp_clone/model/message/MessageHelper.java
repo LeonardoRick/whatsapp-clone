@@ -4,9 +4,7 @@ import android.util.Log;
 
 import com.example.whatsapp_clone.helper.Constants;
 import com.example.whatsapp_clone.helper.FirebaseConfig;
-import com.example.whatsapp_clone.model.chat_item.ChatItem;
-import com.example.whatsapp_clone.model.chat_item.ChatItemHelper;
-import com.example.whatsapp_clone.model.user.User;
+
 import com.google.firebase.database.DatabaseReference;
 
 public class MessageHelper {
@@ -14,7 +12,6 @@ public class MessageHelper {
     private static final DatabaseReference messagedRef = FirebaseConfig.getFirebaseDatabase().child(Constants.MessagesNode.KEY);
     /**
      * Method to to save message that can be seen for both users of this chat
-     *
      * @param message to be saved twice on Database to appear for both sender and receiver
      */
     public static boolean saveDirectMessageOnDatabase(Message message) {
@@ -40,6 +37,10 @@ public class MessageHelper {
         }
     }
 
+    /**
+     * Method to to save message that can be seen all group users
+     * @param message to be saved
+     */
      public static boolean saveGroupMessageOnDatabase(Message message, String memberId) {
         try {
             messagedRef.child(memberId)

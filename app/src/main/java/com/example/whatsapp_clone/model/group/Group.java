@@ -8,6 +8,7 @@ import com.example.whatsapp_clone.model.user.User;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+
 import androidx.annotation.Nullable;
 
 public class Group implements Serializable {
@@ -29,9 +30,21 @@ public class Group implements Serializable {
         this.creator = creator;
     }
 
+    // use to copy instance of group to another one
+    public Group (Group group) {
+        this.id = group.id;
+        this.name = group.name;
+        this.members = group.members;
+        this.creator = group.creator;
+        this.picture = group.picture;
+        this.stringPicture = group.stringPicture;
+    }
+
     public void addGroupMember(User user) {
         this.members.add(user);
     }
+
+    public void removeGroupMember(User user) {this.members.remove(user);}
 
     /****** getters and setters ******/
 

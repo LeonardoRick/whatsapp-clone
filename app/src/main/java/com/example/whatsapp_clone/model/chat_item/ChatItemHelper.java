@@ -83,10 +83,69 @@ public class ChatItemHelper {
     }
 
     /**
+     * Called to delete chatItem to logged user. Other user will keep his chat
+     * Remember to call this method removing messages node too
+     * @param chat to be removed
+     */
+
+    public static boolean removeDirectChatItem(ChatItem chat) {
+        try {
+            FirebaseConfig.getFirebaseDatabase()
+                    .child(Constants.ChatsNode.KEY)
+                    .child(UserHelper.getLogged().getId())
+                    .child(chat.getSelectedContact().getId())
+                    .removeValue();
+
+            if (cleanMessagesDatabase(UserHelper.getLogged().getId(), chat.getSelectedContact().getId()))
+                return true;
+            return false;
+        } catch (Exception e) {
+            Log.e(TAG, "removeDirectChatItem: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean removeGroupChatItem(ChatItem chat) {
+        try {
+            FirebaseConfig.getFirebaseDatabase()
+                    .child(Constants.ChatsNode.KEY)
+                    .child(UserHelper.getLogged().getId())
+                    .child(Constants.GroupNode.KEY)
+                    .child(chat.getGroup().getId())
+                    .removeValue();
+
+            if (cleanMessagesDatabase(UserHelper.getLogged().getId(), chat.getGroup().getId()))
+                return true;
+            return false;
+        } catch (Exception e) {
+            Log.e(TAG, "removeDirectChatItem: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Used to clean messaged node on database when user delete chat with group or user
+     * @param senderId logged user id
+     * @param receiverId id of user or group specified from user
+     */
+    private static boolean cleanMessagesDatabase(String senderId, String receiverId) {
+        try {
+            FirebaseConfig.getFirebaseDatabase()
+                    .child(Constants.MessagesNode.KEY)
+                    .child(senderId)
+                    .child(receiverId)
+                    .removeValue();
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "cleanMessagesDatabase: " + e.getMessage() );
+            return false;
+        }
+    }
+
+    /**
      * @param chatItem to be converted to hashMap so Firebase .updateChildren accpets
      * @return Map <String, Object> where Object is user info
      */
-
     public static Map<String, Object> convertChatToMap(ChatItem chatItem) {
         Map<String, Object> chatMap = new HashMap<>();
 

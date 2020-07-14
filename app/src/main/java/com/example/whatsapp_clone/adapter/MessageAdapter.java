@@ -47,8 +47,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
         Message msg = messagesList.get(position);
-
         holder.setIsRecyclable(false);
+
         if(msg.isImage()) {
             Uri uri = Uri.parse(msg.getTextMessage());
             Picasso.get()
@@ -60,6 +60,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             holder.textViewMessageChat.setText(msg.getTextMessage());
             holder.imageViewMessageChat.setVisibility(View.GONE);
         }
+
+        if (msg.isGroup()) holder.textViewMemberNameChat.setText(msg.getSenderName());
+        else holder.textViewMemberNameChat.setVisibility(View.GONE);
     }
 
     @Override
@@ -89,7 +92,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     public class MessageViewHolder extends RecyclerView.ViewHolder {
 
-        TextView textViewMessageChat;
+        TextView textViewMemberNameChat, textViewMessageChat;
         ImageView imageViewMessageChat;
 
         public MessageViewHolder(@NonNull View itemView) {
@@ -97,6 +100,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
             // Both (message_sender.xml and message_receiver.xml) has view with same id
             // so code don't change here when inflating one or other
+            textViewMemberNameChat = itemView.findViewById(R.id.textViewMemberNameChat);
             textViewMessageChat = itemView.findViewById(R.id.textViewMessageChat);
             imageViewMessageChat = itemView.findViewById(R.id.imageViewMessageChat);
 

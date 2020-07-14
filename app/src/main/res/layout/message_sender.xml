@@ -11,17 +11,23 @@
         android:layout_alignParentRight="true">
 
         <TextView
-            android:id="@+id/textViewMessageChat"
+            android:id="@+id/textViewMemberNameChat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"
-            android:text="Hello, how are you"/>
+            android:text="Leonardo Rick"/>
 
         <ImageView
             android:id="@+id/imageViewMessageChat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/placeholder" />
+
+        <TextView
+            android:id="@+id/textViewMessageChat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:text="Hello, how are you"/>
     </LinearLayout>
 </RelativeLayout>

@@ -46,6 +46,32 @@ public class GroupHelper {
         }
     }
 
+    /**
+     * Called to delete group to logged user. Other users keep with group
+     * Remember to call this method calling chatItemHelper.removeGroupChatItem too
+     * @param group to be removed
+     */
+    public static final boolean quitGroup(Group group) {
+        try {
+            Group newGroup = new Group(group);                              // Copy info from previous group
+            newGroup.removeGroupMember(UserHelper.getLogged());             // Remove logged user from new group to update database
+
+            for (User member : group.getMembers())
+                Log.d(TAG, "quitGroup: ON FOOOR " + member.getName());
+            Map<String, Object> newGroupMap = convertGroupToMap(newGroup);
+
+            Log.d(TAG, "quitGroup: " + UserHelper.convertUserToMap(UserHelper.getLogged()));
+            Log.d(TAG, "quitGroup: " + newGroupMap.get("members"));
+            FirebaseConfig.getFirebaseDatabase()                            // remove member of Group
+                    .child(Constants.GroupNode.KEY)
+                    .child(group.getId())
+                    .setValue(newGroupMap);
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "removeFromDatabase: " + e.getMessage() );
+            return false;
+        }
+    }
 
     /**
      * @param group to be converted to hashMap so Firebase accpets since uri is not serializable
@@ -59,7 +85,6 @@ public class GroupHelper {
         if (group.getPicture() != null ) {
             groupMap.put(Constants.GroupNode.PICTURE, group.getPicture().toString());
         }
-
 
         if (group.getCreator() != null)  {
             Map<String, Object> creatorMap = UserHelper.convertUserToMap(group.getCreator());

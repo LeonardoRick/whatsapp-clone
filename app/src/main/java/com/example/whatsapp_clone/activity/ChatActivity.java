@@ -109,6 +109,7 @@ public class ChatActivity extends AppCompatActivity {
      * Recover all past messagens between selectedContact and logged user
      */
     private void chatHistoryListener() {
+        messagesList.clear();
         if (isGroupChat) {
             messagesRef = FirebaseConfig.getFirebaseDatabase()
                     .child(Constants.MessagesNode.KEY)
@@ -127,7 +128,6 @@ public class ChatActivity extends AppCompatActivity {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                         messagesList.add(dataSnapshot.getValue(Message.class));
-                        Message msgg = dataSnapshot.getValue(Message.class);
                         adapter.notifyDataSetChanged();
                     }
 
@@ -155,7 +155,7 @@ public class ChatActivity extends AppCompatActivity {
 
         if (!textMsg.isEmpty()) {
             sendMessage(textMsg, false);       // update message database
-            updateChat(textMsg, false);       // Update chat database to show it on list of chats (ChatsListFragment)
+            updateChatItem(textMsg, false);       // Update chat database to show it on list of chats (ChatsListFragment)
         }
     }
 
@@ -167,6 +167,7 @@ public class ChatActivity extends AppCompatActivity {
         message.setImage(isImage);
 
         if (isGroupChat) {
+            message.setSenderName(loggedUser.getName());
             message.setReceiverId(group.getId());
             for (User member : group.getMembers()) {
                 MessageHelper.saveGroupMessageOnDatabase(message, member.getId());
@@ -177,7 +178,7 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    private void updateChat(String msg, boolean isImage) {
+    private void updateChatItem(String msg, boolean isImage) {
         ChatItem chat = new ChatItem();
         chat.setId(UUID.randomUUID().toString());
         chat.setIsGroup(isGroupChat);
@@ -225,7 +226,7 @@ public class ChatActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Uri uri) {
                        sendMessage(uri.toString(), true);      // Update message database
-                       updateChat(uri.toString(), true);       // Update chat database to show it on list of chats (ChatsListFragment)
+                       updateChatItem(uri.toString(), true);       // Update chat database to show it on list of chats (ChatsListFragment)
                     }
                 });
             }

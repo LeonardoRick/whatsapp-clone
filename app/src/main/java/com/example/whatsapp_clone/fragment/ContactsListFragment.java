@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +34,7 @@ public class ContactsListFragment extends Fragment {
 
     private RecyclerView recyclerViewContacts;
     private UserAdapter adapter;
-    private ArrayList<User> contactList = new ArrayList<>();
+    private ArrayList<User> contactsList = new ArrayList<>();
     private boolean recyclerViewClickFlag = false;
     private ValueEventListener contactsEventListener;
 
@@ -47,6 +46,18 @@ public class ContactsListFragment extends Fragment {
     }
 
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.users_list, container, false);
+
+        usersRef = FirebaseConfig.getFirebaseDatabase().child(Constants.UsersNode.KEY);
+        loggedUser = UserHelper.getLogged();
+        setContactRecyclerView(view);
+
+        return view;  // Inflate the layout for this fragment
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         recoverContactsList();
@@ -55,23 +66,38 @@ public class ContactsListFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-    usersRef.removeEventListener(contactsEventListener);
+        usersRef.removeEventListener(contactsEventListener);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.users_list, container, false);
+    /**
+     * Filter contactsList
+     * @param text passed from MaterialSearchView to search
+     *             contact name or email
+     */
+    public void searchChats(String text) {
+        ArrayList<User> contactsFilteredList = new ArrayList<>();
+        for (User contact : contactsList) {
+            String name = contact.getName().toLowerCase();
+            String email = contact.getEmail().toLowerCase();
 
-
-        usersRef = FirebaseConfig.getFirebaseDatabase().child(Constants.UsersNode.KEY);
-        loggedUser = UserHelper.getLogged();
-
-
-        setContactRecyclerView(view);
-
-        return view;  // Inflate the layout for this fragment
+            if (name.contains(text) || email.contains(text))
+                contactsFilteredList.add(contact);
+        }
+        updateAdapter(contactsFilteredList);
     }
+
+    /**
+     * called from MainActivity to update list when user closes searchView
+     */
+    public void updateAdapterWithStartList() {
+        updateAdapter(contactsList);
+    }
+    private void updateAdapter(ArrayList<User> list) {
+        adapter = new UserAdapter(list);
+        recyclerViewContacts.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
 
     private void recoverContactsList() {
         contactsEventListener =
@@ -79,8 +105,8 @@ public class ContactsListFragment extends Fragment {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        contactList.clear();
                         if (dataSnapshot.exists()) {
+                            contactsList.clear();
                             setCreateGroupButton(); // add first item of list as createGroupButton
                             Map<String, Object> userMap;              // userMap to recover users info to list
                             for (DataSnapshot userNode : dataSnapshot.getChildren()) {
@@ -88,7 +114,7 @@ public class ContactsListFragment extends Fragment {
                                 User user = UserHelper.convertMapToUser(userMap);
 
                                 if (!user.getId().equals(loggedUser.getId()))// remove user from his own list of contacts
-                                    contactList.add(user);
+                                    contactsList.add(user);
                             }
                             recyclerViewClickFlag = true;
                             adapter.notifyDataSetChanged();
@@ -109,7 +135,7 @@ public class ContactsListFragment extends Fragment {
         recyclerViewContacts.setLayoutManager(layoutManager);
 
         // Adapter
-        adapter = new UserAdapter(contactList);
+        adapter = new UserAdapter(contactsList);
         recyclerViewContacts.setAdapter(adapter);
         setRecyclerViewClickListener();
     }
@@ -125,10 +151,12 @@ public class ContactsListFragment extends Fragment {
 
                                 // Check if click is allowed (after list of contacts is loaded)
                                 if (recyclerViewClickFlag) {
-                                    User selectedContact = contactList.get(position);
+                                    // Using adapter list so when user filtered list
+                                    // items will have right id and will open correct chat
+                                    User selectedContact = (User) adapter.getList().get(position);
                                     // check if its groupButton to start group intent
                                     if (selectedContact.getId().equals(Constants.GroupListItem.ID)) {
-                                        contactList.remove(selectedContact); // remove button from list
+                                        contactsList.remove(selectedContact); // remove button from list
                                         navigateToGroupActivity(view);
                                     } else {
                                         navigateToChatActivity(view, selectedContact);
@@ -149,7 +177,7 @@ public class ContactsListFragment extends Fragment {
 
     private void navigateToGroupActivity(View view) {
         Intent intent = new Intent (view.getContext(), GroupActivity.class);
-        intent.putExtra(Constants.IntentKey.CONTACTS_LIST, contactList);
+        intent.putExtra(Constants.IntentKey.CONTACTS_LIST, contactsList);
         startActivity(intent);
     }
 
@@ -167,6 +195,7 @@ public class ContactsListFragment extends Fragment {
         User groupItem = new User();
         groupItem.setId(Constants.GroupListItem.ID);
         groupItem.setName(Constants.GroupListItem.NAME);
-        contactList.add(groupItem);
+        groupItem.setEmail("");
+        contactsList.add(groupItem);
     }
 }

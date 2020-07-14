@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void configTabs() {
         smartTabLayout = findViewById(R.id.viewPagerTab);
-        viewPager = findViewById(R.id.viewPager);
+        viewPager = findViewById(R.id.viewPager); // container of as many fragments we want
 
         final FragmentPagerItemAdapter pagerAdapter = new FragmentPagerItemAdapter(
                 getSupportFragmentManager(), // return a fragment manager
@@ -85,12 +85,6 @@ public class MainActivity extends AppCompatActivity {
                     .add("Contatos", ContactsListFragment.class)
                 .create()
         );
-
-        smartTabLayout.setOnTabClickListener(new SmartTabLayout.OnTabClickListener() {
-            @Override
-            public void onTabClicked(int position) {
-            }
-        });
 
         viewPager.setAdapter(pagerAdapter);
         smartTabLayout.setViewPager(viewPager);
@@ -101,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
     public void configSearchView(final FragmentPagerItemAdapter pageAdapter) {
         searchView = findViewById(R.id.materialSearchViewMain);
 
-        // Listener to searchView (Open and close of bar)
+        // Listener to searchView (Open and close of search bar)
         searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
             @Override
             public void onSearchViewShown() { }
@@ -109,25 +103,39 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSearchViewClosed() {
                 // Access Fragment info throw activity
-                ChatsListFragment fragment = (ChatsListFragment) pageAdapter.getPage(CHATS_LIST_FRAGMENT_INDEX);
-                fragment.updateAdapterWithStartList();
+                if (viewPager.getCurrentItem() == CHATS_LIST_FRAGMENT_INDEX) {
+                    ChatsListFragment chatsListFragment = (ChatsListFragment) pageAdapter.getPage(CHATS_LIST_FRAGMENT_INDEX);
+                    chatsListFragment.updateAdapterWithStartList();
+                } else {
+                    ContactsListFragment contactsListFragment = (ContactsListFragment) pageAdapter.getPage(CONTACTS_LIST_FRAGMENT_INDEX);
+                    contactsListFragment.updateAdapterWithStartList();
+                }
 
             }
         });
 
 
-        // Listener to search text box
+        // Listener to search text box to, in did, search names of chats and contacts
         searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) { return false; }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // Access Fragment info throw activity
-                ChatsListFragment fragment = (ChatsListFragment) pageAdapter.getPage(CHATS_LIST_FRAGMENT_INDEX);
 
-                if(newText != null && !newText.isEmpty()) {
-                    fragment.searchChats(newText.toLowerCase());
+                // check if user is searching Chats or Contacts
+                switch ( viewPager.getCurrentItem()) {
+                    case CHATS_LIST_FRAGMENT_INDEX:
+                        // Access Fragment info throw activity
+                        ChatsListFragment chatsListFragment = (ChatsListFragment) pageAdapter.getPage(CHATS_LIST_FRAGMENT_INDEX);
+                        if (newText != null && !newText.isEmpty())
+                            chatsListFragment.searchChats(newText.toLowerCase());
+                        break;
+                    case CONTACTS_LIST_FRAGMENT_INDEX:
+                        ContactsListFragment contactsListFragment = (ContactsListFragment) pageAdapter.getPage(CONTACTS_LIST_FRAGMENT_INDEX);
+                        if (newText != null && !newText.isEmpty())
+                            contactsListFragment.searchChats(newText.toLowerCase());
+                        break;
                 }
                 return true;
             }
