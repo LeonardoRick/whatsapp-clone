@@ -56,12 +56,8 @@ public class GroupHelper {
             Group newGroup = new Group(group);                              // Copy info from previous group
             newGroup.removeGroupMember(UserHelper.getLogged());             // Remove logged user from new group to update database
 
-            for (User member : group.getMembers())
-                Log.d(TAG, "quitGroup: ON FOOOR " + member.getName());
             Map<String, Object> newGroupMap = convertGroupToMap(newGroup);
 
-            Log.d(TAG, "quitGroup: " + UserHelper.convertUserToMap(UserHelper.getLogged()));
-            Log.d(TAG, "quitGroup: " + newGroupMap.get("members"));
             FirebaseConfig.getFirebaseDatabase()                            // remove member of Group
                     .child(Constants.GroupNode.KEY)
                     .child(group.getId())
