@@ -79,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity {
                     } catch (FirebaseAuthInvalidUserException e) {
                         showLongToast("Email inválido");
                     } catch (FirebaseAuthWeakPasswordException e) {
-                        showLongToast("Senha fraca, insira uma ");
+                        showLongToast("Senha fraca, insira uma que contenha letras e números");
                     } catch (FirebaseAuthInvalidCredentialsException e) {
                         showLongToast("Usuário ou senha incorretos");
                     } catch (Exception e) {
