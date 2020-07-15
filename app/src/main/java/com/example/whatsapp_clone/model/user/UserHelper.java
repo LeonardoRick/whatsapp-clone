@@ -39,7 +39,7 @@ public class UserHelper {
      * Save user on database within his id
      * @return boolean to control success of operation
      *
-     * Uri property don't give us a trobule here because it's not defined yes
+     * Uri property don't give us a trobule here because it's not defined yet
      * When this method is called. Refactor to use Map as updateOnDatabase() if needed
      */
     public static boolean saveOnDatabase(User user) {
