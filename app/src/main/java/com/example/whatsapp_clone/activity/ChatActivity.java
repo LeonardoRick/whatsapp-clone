@@ -209,7 +209,7 @@ public class ChatActivity extends AppCompatActivity {
                 .child(Constants.Storage.IMAGES)
                 .child(Constants.Storage.CHAT)
                 .child(loggedUser.getId())
-                .child(imageName + Constants.Storage.JPEG);               // Save image with user id name
+                .child(imageName + Constants.Storage.JPEG);
 
         UploadTask uploadTask = imageStorageRef.putBytes(imgData);
         uploadTask.addOnFailureListener(new OnFailureListener() {
