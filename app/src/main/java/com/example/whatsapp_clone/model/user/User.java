@@ -87,6 +87,7 @@ public class User implements Serializable, Comparable<User> {
 
     /**
      * To set that index of sort is user name
+     * When sorting by Collections.sort()
      * @param user
      * @return
      */
